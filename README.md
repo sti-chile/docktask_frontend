@@ -3,9 +3,7 @@
 **Frontend de DockTask** — Aplicación de gestión de proyectos y mensajes, construida con **React 18 + Vite**, usando componentes modernos, hooks y Tailwind CSS.  
 El backend está implementado en Flask + PostgreSQL.
 
-![DockTask Dashboard Screenshot](public/vite.svg) <!-- Cambia esto por una imagen real de tu app si la tienes -->
-
----
+![DockTask Dashboard Screenshot](public/vite.svg) 
 
 ## ✨ Características
 

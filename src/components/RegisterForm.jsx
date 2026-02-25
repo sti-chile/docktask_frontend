@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { UserPlusIcon, UserIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { buildAxios } from '../api/axiosInstance';
+import { UserPlusIcon, UserIcon, LockClosedIcon, EnvelopeIcon, PhoneIcon,
+  UserCircleIcon, IdentificationIcon
+ } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [mensaje, setMensaje] = useState('');
   const navigate = useNavigate();
 
@@ -13,25 +19,40 @@ const RegisterForm = () => {
   useEffect(() => {
     setUsername('');
     setPassword('');
+    setNombre('');
+    setApellido('');
+    setEmail('');
+    setPhone('');
     setMensaje('');
   }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    try {
+    try { 
+      const axios = buildAxios();
       const res = await axios.post('/api/register', {
         username,
-        password
+        password,
+        nombre,
+        apellido,
+        email,
+        phone
       });
+      console.log(res.data);
       setMensaje('Usuario registrado exitosamente ✅');
       // Limpiar campos después de un registro exitoso
       setUsername('');
       setPassword('');
+      setNombre('');
+      setApellido('');
+      setEmail('');
+      setPhone('');
       // Redirigir al login después de 2 segundos
       setTimeout(() => {
         navigate('/');
       }, 2000);
     } catch (err) {
+      console.log(err);
       if (err.response?.status === 409) {
         setMensaje('El usuario ya existe ❌');
       } else {
@@ -70,6 +91,62 @@ const RegisterForm = () => {
             required
             className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             autoComplete="new-password"
+          />
+        </div>
+        <div className="relative">
+          <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+            <IdentificationIcon className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Nombre"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            required
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            autoComplete="off"
+          />
+        </div>
+        <div className="relative">
+          <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+            <UserCircleIcon className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Apellido"
+            value={apellido}
+            onChange={(e) => setApellido(e.target.value)}
+            required
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            autoComplete="off"
+          />
+        </div>
+        <div className="relative">
+          <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+            <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            autoComplete="off"
+          />
+        </div>
+        <div className="relative">
+          <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+            <PhoneIcon className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Telefono"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            autoComplete="off"
           />
         </div>
 

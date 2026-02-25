@@ -12,7 +12,8 @@ const PrivateRoute = ({ token, children }) => {
       }
       idleTimeoutRef.current = setTimeout(() => {
         // Redirigir al login cuando la sesión expire
-        window.location.href = '/login';
+        const baseUrl = window.location.origin;
+        window.location.href = `${baseUrl}/login`;
       }, idleTime);
     };
 

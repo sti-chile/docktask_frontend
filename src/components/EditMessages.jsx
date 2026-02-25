@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { buildAxios } from '../api/axiosInstance';
 
 function EditMessage({ token }) {
   const { id } = useParams();
@@ -8,10 +9,9 @@ function EditMessage({ token }) {
   const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
+    const axios = buildAxios(token);
     axios
-      .get(`http://localhost:5000/api/mis-mensajes`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get(`/api/mis-mensajes`)
       .then((res) => {
         const msg = res.data.find((m) => m.id === parseInt(id));
         if (msg) setMensaje(msg.mensaje);
@@ -21,14 +21,12 @@ function EditMessage({ token }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const axios = buildAxios(token);
     axios
       .put(
-        `http://localhost:5000/api/mensajes/${id}`,
+        `/api/mensajes/${id}`,
         {
           mensaje,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
         }
       )
       .then(() => navigate("/mis-mensajes"))

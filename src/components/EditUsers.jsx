@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { UserPlusIcon, UserIcon, LockClosedIcon, IdentificationIcon, PencilIcon, TrashIcon, ArrowLeftIcon } from '@heroicons/react/24/outline/index.js';
+import { buildAxios } from '../api/axiosInstance';
 
 function EditUsers({ token }) {
   const { id } = useParams();
@@ -30,9 +30,8 @@ function EditUsers({ token }) {
   const obtenerUsuarios = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/admin/api/usuarios", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const axios = buildAxios(token);
+      const res = await axios.get("/admin/api/usuarios");
       setUsuarios(res.data);
     } catch (err) {
       setError("Error al obtener usuarios");
@@ -46,9 +45,8 @@ function EditUsers({ token }) {
   const obtenerUsuario = async (userId) => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/admin/api/usuarios/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const axios = buildAxios(token);
+      const res = await axios.get(`/admin/api/usuarios/${userId}`);
       setEditingUser(res.data);
     } catch (err) {
       setError("Error al obtener usuario");
@@ -77,9 +75,8 @@ function EditUsers({ token }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/admin/api/usuarios', newUser, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const axios = buildAxios(token);
+      await axios.post('/admin/api/usuarios', newUser);
       
       toast.success('Usuario creado exitosamente', {
         position: "top-right",
@@ -108,9 +105,8 @@ function EditUsers({ token }) {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/admin/api/usuarios/${id}`, editingUser, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const axios = buildAxios(token);
+      await axios.put(`/admin/api/usuarios/${id}`, editingUser);
       
       toast.success('Usuario actualizado exitosamente');
       navigate('/admin');
@@ -126,9 +122,8 @@ function EditUsers({ token }) {
     }
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:5000/admin/api/usuarios/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const axios = buildAxios(token);
+      await axios.delete(`/admin/api/usuarios/${userId}`);
       
       toast.success('Usuario eliminado exitosamente');
       obtenerUsuarios();

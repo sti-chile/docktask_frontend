@@ -57,9 +57,9 @@ function App() {
                   userData={user}
                   isLoading={false}
                   ultimosMensajes={ultimosMensajes}
-                  onCrearMensaje={() => window.location.href = "/create"}
-                  onCrearProyecto={() => window.location.href = "/crear-proyecto"}
-                  onVerTodosMensajes={() => window.location.href = "/mis-mensajes"}
+                  onCrearMensaje={() => window.location.href = `${window.location.origin}/create`}
+                  onCrearProyecto={() => window.location.href = `${window.location.origin}/crear-proyecto`}
+                  onVerTodosMensajes={() => window.location.href = `${window.location.origin}/mis-mensajes`}
                 />
               </PrivateRoute>
             }
