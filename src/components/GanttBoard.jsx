@@ -4,11 +4,12 @@ import { Gantt } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-const GanttBoard = () => {
+const GanttBoard = ({ proyectoId }) => {
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
+  // TODO (Issue #1): reemplazar por fetch a /api/proyectos/:id/mensajes
   const tasks = [
     {
       start: today,
@@ -44,7 +45,10 @@ const GanttBoard = () => {
     <div className="container mx-auto px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle>Vista de Diagrama Gantt (Simulado)</CardTitle>
+          <CardTitle>
+            Vista de Diagrama Gantt
+            {proyectoId ? ` — Proyecto #${proyectoId}` : " (Simulado)"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-auto">
