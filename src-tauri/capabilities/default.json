@@ -1,0 +1,27 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "DockTask — permisos por defecto",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "shell:default",
+    "notification:default",
+    "notification:allow-request-permission",
+    "notification:allow-notify",
+    "notification:allow-is-permission-granted",
+    "store:default",
+    "store:allow-get",
+    "store:allow-set",
+    "store:allow-save",
+    "store:allow-load",
+    "sql:default",
+    "sql:allow-execute",
+    "sql:allow-select",
+    "sql:allow-load",
+    "http:default",
+    "http:allow-fetch",
+    "os:default",
+    "os:allow-platform"
+  ]
+}
