@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { HomeIcon, ChatBubbleLeftIcon, ArrowRightOnRectangleIcon, UserGroupIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline/index.js';
+import { HomeIcon, ChatBubbleLeftIcon, ArrowRightOnRectangleIcon, UserGroupIcon, ClipboardDocumentIcon, RectangleGroupIcon } from '@heroicons/react/24/outline/index.js';
 
 const Navbar = ({ token, onLogout }) => {
   const navigate = useNavigate();
@@ -33,6 +33,13 @@ const Navbar = ({ token, onLogout }) => {
                 >
                   <ClipboardDocumentIcon className="h-6 w-6 mr-2" />
                   <span className="font-semibold">Mis Proyectos</span>
+                </Link>
+                <Link
+                  to="/mis-workspaces"
+                  className="flex items-center text-gray-800 hover:text-indigo-600 transition-colors duration-200"
+                >
+                  <RectangleGroupIcon className="h-6 w-6 mr-2" />
+                  <span className="font-semibold">Workspaces</span>
                 </Link>
 
                 {user.rol === 'admin' && (
