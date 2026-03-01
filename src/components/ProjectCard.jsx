@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PencilIcon, TrashIcon, CalendarIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, CalendarIcon, ChatBubbleLeftIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -94,9 +94,27 @@ const ProjectCard = ({ proyecto, onDelete, onEdit }) => {
         <Badge variant="secondary" className="text-xs">
           {proyecto.estado || 'Activo'}
         </Badge>
-        <Button variant="ghost" size="sm" className="text-blue-500 hover:text-blue-600">
-          Ver mensajes
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-blue-500 hover:text-blue-600"
+          >
+            Ver mensajes
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/mis-proyectos/${proyecto.id}/gantt`);
+            }}
+          >
+            <ChartBarIcon className="h-4 w-4" />
+            Gantt
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

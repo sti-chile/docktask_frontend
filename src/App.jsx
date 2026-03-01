@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import {
   Routes,
   Route,
+  Navigate,
+  useParams,
 } from "react-router-dom";
 import LoginForm from "./components/LoginForms.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
@@ -68,7 +70,8 @@ function App() {
 
           <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
           <Route path="/register" element={<RegisterForm />} />
-          <Route path="/gantt" element={<GanttBoard />} />
+          {/* Ruta /gantt suelta redirige a proyectos */}
+          <Route path="/gantt" element={<Navigate to="/mis-proyectos" replace />} />
           {token && (
             <>
               <Route path="/" element={<PrivateRoute token={token}><Dashboard token={token} /></PrivateRoute>} />
@@ -78,6 +81,14 @@ function App() {
               <Route path="/mis-proyectos" element={<PrivateRoute token={token}><ProjectsContainer token={token} /></PrivateRoute>} />
               <Route path="/crear-proyecto" element={<PrivateRoute token={token}><CreateProject token={token} /></PrivateRoute>} />
               <Route path="/editar-proyecto/:id" element={<PrivateRoute token={token}><EditProject token={token} /></PrivateRoute>} />
+              <Route
+                path="/mis-proyectos/:id/gantt"
+                element={
+                  <PrivateRoute token={token}>
+                    <GanttWrapper />
+                  </PrivateRoute>
+                }
+              />
               {user?.rol === "admin" && (
                 <Route path="/admin" element={<PrivateRoute token={token}><EditUsers /></PrivateRoute>} />
               )}
@@ -100,6 +111,12 @@ function App() {
       />
     </div>
   );
+}
+
+// Wrapper para extraer :id de la URL y pasarlo como prop a GanttBoard
+function GanttWrapper() {
+  const { id } = useParams();
+  return <GanttBoard proyectoId={id} />;
 }
 
 export default App;
