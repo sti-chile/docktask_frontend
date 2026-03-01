@@ -21,6 +21,9 @@ import CreateProject from './components/CreateProject';
 import EditProject from './components/EditProject';
 import './styles/datepicker.css';
 import GanttBoard from './components/GanttBoard';
+import WorkspacesContainer from './components/containers/WorkspacesContainer';
+import CreateWorkspace from './components/CreateWorkspace';
+import EditWorkspace from './components/EditWorkspace';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
@@ -81,6 +84,9 @@ function App() {
               <Route path="/mis-proyectos" element={<PrivateRoute token={token}><ProjectsContainer token={token} /></PrivateRoute>} />
               <Route path="/crear-proyecto" element={<PrivateRoute token={token}><CreateProject token={token} /></PrivateRoute>} />
               <Route path="/editar-proyecto/:id" element={<PrivateRoute token={token}><EditProject token={token} /></PrivateRoute>} />
+              <Route path="/mis-workspaces" element={<PrivateRoute token={token}><WorkspacesContainer token={token} /></PrivateRoute>} />
+              <Route path="/crear-workspace" element={<PrivateRoute token={token}><CreateWorkspace token={token} /></PrivateRoute>} />
+              <Route path="/editar-workspace/:id" element={<PrivateRoute token={token}><EditWorkspace token={token} /></PrivateRoute>} />
               <Route
                 path="/mis-proyectos/:id/gantt"
                 element={
