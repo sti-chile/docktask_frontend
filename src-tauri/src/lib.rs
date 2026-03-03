@@ -14,6 +14,7 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations("sqlite:docktask.db", commands::offline::db_migrations())
@@ -35,7 +36,7 @@ pub fn run() {
             // Info del sistema
             commands::system::get_network_status,
         ])
-        // ── Setup: iniciar sync worker en background ──────────────────────
+        // ── Setup: sync worker + deep link handler ────────────────────────
         .setup(|app| {
             let app_handle = app.handle().clone();
 
@@ -43,6 +44,18 @@ pub fn run() {
             tauri::async_runtime::spawn(async move {
                 sync::worker::start_sync_loop(app_handle).await;
             });
+
+            // Manejar deep links — reenviar URL a React para que el router la procese
+            #[cfg(any(target_os = "android", target_os = "linux", target_os = "windows", target_os = "macos"))]
+            {
+                let app_handle = app.handle().clone();
+                app.listen("deep-link://new-url", move |event| {
+                    if let Some(url) = event.payload().strip_prefix('"').and_then(|s| s.strip_suffix('"')) {
+                        log::info!("🔗 Deep link recibido: {}", url);
+                        let _ = app_handle.emit("deeplink:navigate", url.to_string());
+                    }
+                });
+            }
 
             Ok(())
         })

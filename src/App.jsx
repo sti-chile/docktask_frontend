@@ -4,8 +4,9 @@ import {
   Route,
   Navigate,
   useParams,
+  useNavigate,
 } from "react-router-dom";
-import { saveTauriAuthToken, clearTauriAuthToken } from "./hooks/useTauri";
+import { saveTauriAuthToken, clearTauriAuthToken, useDeepLink, useTauri } from "./hooks/useTauri";
 import LoginForm from "./components/LoginForms.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import RegisterForm from "./components/RegisterForm.jsx";
@@ -27,8 +28,13 @@ import CreateWorkspace from './components/CreateWorkspace';
 import EditWorkspace from './components/EditWorkspace';
 
 function App() {
+  const navigate = useNavigate();
+  const { isMobile } = useTauri();
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
+
+  // Deep links — notificación → navega a la ruta correcta
+  useDeepLink(navigate);
 
   const handleLogin = (token, user) => {
     localStorage.setItem("token", token);
@@ -56,7 +62,7 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       <Navbar token={token} onLogout={handleLogout} />
 
-      <main className="flex justify-center items-center container mx-auto px-4 py-8">
+      <main className={`flex justify-center items-center container mx-auto px-4 py-8 ${isMobile && token ? 'pb-20' : ''}`}>
         <Routes>
           <Route
             path="/"

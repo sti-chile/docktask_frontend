@@ -32,6 +32,78 @@ let tauriListen = null;
 })();
 
 // ─────────────────────────────────────────────
+//  HOOK: DEEP LINKS
+//  Escucha deeplink:navigate y convierte la URL
+//  en una ruta de React Router.
+//
+//  Uso:
+//    useDeepLink(navigate);
+// ─────────────────────────────────────────────
+
+export function useDeepLink(navigate) {
+  useEffect(() => {
+    if (!tauriListen) return;
+
+    let unlisten;
+
+    // Escuchar evento emitido desde lib.rs
+    tauriListen("deeplink:navigate", (event) => {
+      const raw = event.payload; // ej: "docktask://task/abc123"
+      const path = parseDeepLinkPath(raw);
+      if (path) {
+        console.log("[DeepLink] Navegando a:", path);
+        navigate(path);
+      }
+    }).then((fn) => {
+      unlisten = fn;
+    });
+
+    // También revisar si la app se abrió con un deep link (cold start)
+    (async () => {
+      try {
+        const { getCurrent } = await import("@tauri-apps/plugin-deep-link");
+        const urls = await getCurrent();
+        if (urls && urls.length > 0) {
+          const path = parseDeepLinkPath(urls[0]);
+          if (path) navigate(path);
+        }
+      } catch (_) {}
+    })();
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, [navigate]);
+}
+
+/**
+ * Convierte una URL de deep link en una ruta React Router.
+ *
+ * Ejemplos:
+ *   docktask://task/abc123        → /tarea/abc123
+ *   https://app.docktask.com/task/abc123 → /tarea/abc123
+ *   docktask://project/xyz        → /mis-proyectos/xyz
+ *   docktask://workspace/w1       → /mis-workspaces/w1
+ */
+function parseDeepLinkPath(url) {
+  try {
+    const u = new URL(url.replace("docktask://", "https://deep.link/"));
+    const parts = u.pathname.split("/").filter(Boolean);
+    const [type, id] = parts;
+
+    switch (type) {
+      case "task":      return `/tarea/${id}`;
+      case "project":   return `/mis-proyectos/${id}`;
+      case "workspace": return `/mis-workspaces/${id}`;
+      case "gantt":     return `/mis-proyectos/${id}/gantt`;
+      default:          return null;
+    }
+  } catch (_) {
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────
 //  HOOK PRINCIPAL
 // ─────────────────────────────────────────────
 
