@@ -5,6 +5,7 @@ import {
   Navigate,
   useParams,
 } from "react-router-dom";
+import { saveTauriAuthToken, clearTauriAuthToken } from "./hooks/useTauri";
 import LoginForm from "./components/LoginForms.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import RegisterForm from "./components/RegisterForm.jsx";
@@ -34,6 +35,8 @@ function App() {
     localStorage.setItem("user", JSON.stringify(user));
     setToken(token);
     setUser(user);
+    // Persistir token en Tauri Store para que el sync worker lo lea
+    saveTauriAuthToken(token);
   };
 
   const handleLogout = () => {
@@ -41,6 +44,8 @@ function App() {
     localStorage.removeItem("user");
     setToken(null);
     setUser(null);
+    // Limpiar token del Tauri Store
+    clearTauriAuthToken();
   };
   const ultimosMensajes = [
     { id: 1, nombre: "Soporte conexión caja", estado: "pendiente", updated_at: new Date() },

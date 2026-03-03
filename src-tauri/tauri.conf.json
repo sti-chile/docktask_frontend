@@ -42,9 +42,8 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "iOS": {
-      "developmentTeam": "TU_TEAM_ID_AQUI"
-    },
-    "android": {}
+    "android": {
+      "minSdkVersion": 24
+    }
   }
 }
