@@ -20,6 +20,10 @@ on:
         required: false
         default: 'false'
 
+env:
+  NDK_VERSION: "27.0.12077973"
+  ANDROID_API: "34"
+
 jobs:
   build-android:
     name: Build Android APK
@@ -38,15 +42,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # ── Android SDK ───────────────────────────────────────────────
+      # ── Android SDK + NDK ─────────────────────────────────────────
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Install Android NDK & Build Tools
         run: |
-          sdkmanager "ndk;27.0.12077973" \
-                     "build-tools;34.0.0" \
-                     "platforms;android-34"
+          sdkmanager "ndk;${{ env.NDK_VERSION }}" \
+                     "build-tools;${{ env.ANDROID_API }}.0.0" \
+                     "platforms;android-${{ env.ANDROID_API }}"
+          echo "NDK_HOME=$ANDROID_HOME/ndk/${{ env.NDK_VERSION }}" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/${{ env.NDK_VERSION }}" >> $GITHUB_ENV
 
       # ── Rust ──────────────────────────────────────────────────────
       - name: Setup Rust
@@ -79,24 +85,33 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      # ── Tauri Android init (genera src-tauri/gen/android) ─────────
+      - name: Tauri Android init
+        run: npm run tauri -- android init
+        env:
+          NDK_HOME: ${{ env.NDK_HOME }}
+          ANDROID_NDK_HOME: ${{ env.NDK_HOME }}
+
       # ── Tauri Android (debug) ─────────────────────────────────────
       - name: Build Android APK (debug)
         if: github.event.inputs.release != 'true'
         run: npm run tauri:build:android -- --apk
         env:
-          NDK_HOME: ${{ env.ANDROID_NDK_ROOT }}
+          NDK_HOME: ${{ env.NDK_HOME }}
+          ANDROID_NDK_HOME: ${{ env.NDK_HOME }}
 
       # ── Tauri Android (release, firmado) ──────────────────────────
       - name: Setup keystore
         if: github.event.inputs.release == 'true'
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > docktask.keystore
-        
+
       - name: Build Android APK (release, signed)
         if: github.event.inputs.release == 'true'
         run: npm run tauri:build:android -- --apk
         env:
-          NDK_HOME: ${{ env.ANDROID_NDK_ROOT }}
+          NDK_HOME: ${{ env.NDK_HOME }}
+          ANDROID_NDK_HOME: ${{ env.NDK_HOME }}
           TAURI_ANDROID_SIGNING_KEY: docktask.keystore
           TAURI_ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           TAURI_ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -106,10 +121,12 @@ jobs:
       - name: Find APK
         id: find-apk
         run: |
-          APK=$(find src-tauri/gen/android -name "*.apk" | head -1)
-          echo "apk_path=$APK" >> $GITHUB_OUTPUT
+          APK=$(find src-tauri/gen/android -name "*.apk" 2>/dev/null | head -1)
+          echo "apk_path=${APK:-not_found}" >> $GITHUB_OUTPUT
+          echo "APK encontrado: $APK"
 
       - name: Upload APK
+        if: steps.find-apk.outputs.apk_path != 'not_found'
         uses: actions/upload-artifact@v4
         with:
           name: docktask-android-${{ github.sha }}
