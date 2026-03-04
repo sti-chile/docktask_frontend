@@ -3,7 +3,6 @@ mod sync;
 
 use tauri::Emitter;
 use tauri::Listener;
-use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
