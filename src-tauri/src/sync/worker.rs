@@ -8,7 +8,7 @@
 
 use std::path::PathBuf;
 use std::time::Duration;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 use tokio::time;
 
 // Intervalo de sincronización de datos

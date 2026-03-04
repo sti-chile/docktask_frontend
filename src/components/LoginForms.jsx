@@ -138,7 +138,9 @@ const LoginForm = ({ onLogin }) => {
       )}
 
       {/* Formulario de login */}
+      <div className="w-full max-w-md"> {/* Wrapper para centrar y limitar ancho */}
       <form onSubmit={handleLogin} className="bg-white rounded-lg shadow-md p-6">
+
         <div className="space-y-4">
           {/* Input de usuario */}
           <div className="relative">
@@ -193,6 +195,7 @@ const LoginForm = ({ onLogin }) => {
           </p>
         </div>
       </form>
+      </div> {/* Fin del wrapper */}
     </div>
   );
 };

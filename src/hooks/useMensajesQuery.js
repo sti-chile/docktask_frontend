@@ -11,7 +11,7 @@ export const useMensajesQuery = (token) => {
     queryFn: async () => {
       try {
         const response = await axios.get('/api/mis-mensajes');
-        return response.data;
+        return Array.isArray(response.data) ? response.data : [];
       } catch (error) {
         console.error('Error al cargar mensajes:', error);
         toast.error('Error al cargar los mensajes');
@@ -132,6 +132,7 @@ export const useMensajesQuery = (token) => {
 
   return {
     mensajes,
+    loading: isLoading,
     isLoading,
     error,
     cargarMensajes,
