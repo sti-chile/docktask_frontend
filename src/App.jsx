@@ -7,6 +7,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { saveTauriAuthToken, clearTauriAuthToken, useDeepLink, useTauri } from "./hooks/useTauri";
+import SplashScreen from "./components/SplashScreen.jsx";
 import LoginForm from "./components/LoginForms.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import RegisterForm from "./components/RegisterForm.jsx";
@@ -32,6 +33,11 @@ function App() {
   const { isMobile } = useTauri();
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
+
+  // Mostrar splash solo si no hay sesión activa y no se vio en esta sesión
+  const [showSplash, setShowSplash] = useState(
+    () => !localStorage.getItem("token") && !sessionStorage.getItem("splashSeen")
+  );
 
   // Deep links — notificación → navega a la ruta correcta
   useDeepLink(navigate);
@@ -60,9 +66,23 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Splash screen — se muestra antes del login, una vez por sesión */}
+      {showSplash && (
+        <SplashScreen
+          onFinish={() => {
+            sessionStorage.setItem('splashSeen', '1');
+            setShowSplash(false);
+          }}
+        />
+      )}
+
       <Navbar token={token} onLogout={handleLogout} />
 
-      <main className={`flex justify-center items-center container mx-auto px-4 py-8 ${isMobile && token ? 'pb-20' : ''}`}>
+      <main
+        className={`flex justify-center items-center container mx-auto px-4 py-8
+          ${isMobile && token ? 'pb-20' : ''}
+          ${isMobile ? 'pt-safe' : ''}`}
+      >
         <Routes>
           <Route
             path="/"
