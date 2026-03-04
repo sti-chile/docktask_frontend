@@ -2,11 +2,7 @@
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL =
-  (typeof import.meta !== 'undefined' &&
-   import.meta.env?.VITE_API_URL)            // Vite
-  || process.env.REACT_APP_API_URL           // CRA
-  || 'http://localhost:5000';                // fallback local
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const buildAxios = (token) => {
   const instance = axios.create({

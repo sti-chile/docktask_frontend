@@ -11,6 +11,9 @@ const TourTutorial = () => {
       startTour();
       localStorage.setItem('hasSeenTour', 'true');
     }
+    
+    const timer = setTimeout(() => setShowHelp(true), 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   const startTour = () => {
@@ -103,9 +106,6 @@ return (
     )}
 
     {/* Mostrar el botón sólo después de que el componente esté montado */}
-    <div style={{ display: 'none' }}>
-      {setTimeout(() => setShowHelp(true), 1000)}
-    </div>
   </>
 );
 };
