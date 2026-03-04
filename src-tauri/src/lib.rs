@@ -1,8 +1,9 @@
 mod commands;
 mod sync;
 
-use tauri::Manager;
 use tauri::Emitter;
+use tauri::Listener;
+use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -50,8 +51,11 @@ pub fn run() {
             #[cfg(any(target_os = "android", target_os = "linux", target_os = "windows", target_os = "macos"))]
             {
                 let app_handle = app.handle().clone();
-                app.listen("deep-link://new-url", move |event| {
-                    if let Some(url) = event.payload().strip_prefix('"').and_then(|s| s.strip_suffix('"')) {
+                app.listen("deep-link://new-url", move |event: tauri::Event| {
+                    let payload = event.payload();
+                    let url = payload
+                        .trim_matches('"');
+                    if !url.is_empty() {
                         log::info!("🔗 Deep link recibido: {}", url);
                         let _ = app_handle.emit("deeplink:navigate", url.to_string());
                     }
