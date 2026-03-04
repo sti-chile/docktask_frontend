@@ -117,11 +117,12 @@ jobs:
           $BUILD_TOOLS/zipalign -v -p 4 "$UNSIGNED" /tmp/docktask-aligned.apk
 
           # Firmar con apksigner
+          # Nota: PKCS12 (OpenSSL) requiere que key-pass = store-pass en Java
           $BUILD_TOOLS/apksigner sign \
             --ks "$KEYSTORE_PATH" \
             --ks-key-alias "${{ secrets.ANDROID_KEY_ALIAS }}" \
             --ks-pass "pass:${{ secrets.ANDROID_STORE_PASSWORD }}" \
-            --key-pass "pass:${{ secrets.ANDROID_KEY_PASSWORD }}" \
+            --key-pass "pass:${{ secrets.ANDROID_STORE_PASSWORD }}" \
             --out /tmp/docktask-release-signed.apk \
             /tmp/docktask-aligned.apk
 
