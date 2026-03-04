@@ -16,7 +16,7 @@ const SYNC_INTERVAL_SECS: u64 = 30;
 // Intervalo de revisión de notificaciones pendientes
 const NOTIF_CHECK_INTERVAL_SECS: u64 = 60;
 // URL base del backend de producción
-const BACKEND_URL: &str = "https://api.docktask.com/api/v1";
+const BACKEND_URL: &str = "https://api.docktask.com/api";
 
 // ─────────────────────────────────────────────
 //  MODELOS PARA SYNC
