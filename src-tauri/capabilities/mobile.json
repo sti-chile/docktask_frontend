@@ -1,8 +1,8 @@
 {
-  "$schema": "../gen/schemas/desktop-schema.json",
-  "identifier": "default",
-  "description": "DockTask — permisos desktop (Linux, Windows, macOS)",
-  "platforms": ["linux", "windows", "macos"],
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "mobile",
+  "description": "DockTask — permisos Android",
+  "platforms": ["android"],
   "windows": ["main"],
   "permissions": [
     "core:default",
