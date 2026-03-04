@@ -14,8 +14,8 @@ export const buildAxios = (token) => {
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
-      if (error.response?.status === 401 || error.response?.status === 404) {
-        // Redirigir al login cuando hay un error 401 o 404
+      if (error.response?.status === 401) {
+        // Redirigir al login solo en errores de autenticación
         window.location.href = `${window.location.origin}/login`;
       }
       return Promise.reject(error);
