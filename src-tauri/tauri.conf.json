@@ -48,7 +48,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "RWRiEgkL4V/Kmi3G1kXESfvujSciBKbhClzn0LA0n5qmvcReMMhu4aLT",
+      "pubkey": "RWTRfNJ1g014+xEqN8doOACvpzjJF0O9Zucw2CQ2Fa2SnPNQ7LUC2XK5",
       "endpoints": [
         "https://github.com/sti-chile/docktask_frontend/releases/latest/download/latest.json"
       ],
