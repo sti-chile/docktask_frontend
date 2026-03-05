@@ -47,6 +47,13 @@
     }
   },
   "plugins": {
+    "updater": {
+      "pubkey": "RWRiEgkL4V/Kmi3G1kXESfvujSciBKbhClzn0LA0n5qmvcReMMhu4aLT",
+      "endpoints": [
+        "https://github.com/sti-chile/docktask_frontend/releases/latest/download/latest.json"
+      ],
+      "dialog": false
+    },
     "deep-link": {
       "mobile": [
         {
