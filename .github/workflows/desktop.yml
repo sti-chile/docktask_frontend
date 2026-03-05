@@ -34,7 +34,7 @@ jobs:
             artifact: '*.exe *.msi'
           - platform: macos
             runner: macos-latest
-            args: '--target aarch64-apple-darwin --target x86_64-apple-darwin'
+            args: '--target universal-apple-darwin'
             artifact: '*.dmg *.app'
 
     steps:
