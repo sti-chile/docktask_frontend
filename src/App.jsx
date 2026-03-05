@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { saveTauriAuthToken, clearTauriAuthToken, useDeepLink, useTauri } from "./hooks/useTauri";
 import SplashScreen from "./components/SplashScreen.jsx";
+import UpdateChecker from "./components/UpdateChecker.jsx";
 import LoginForm from "./components/LoginForms.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import RegisterForm from "./components/RegisterForm.jsx";
@@ -133,6 +134,9 @@ function App() {
           )}
         </Routes>
       </main>
+
+      {/* Auto-updater — solo desktop, banner no intrusivo */}
+      <UpdateChecker />
 
       <ToastContainer
         position="top-right"
