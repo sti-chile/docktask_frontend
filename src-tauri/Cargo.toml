@@ -6,11 +6,7 @@ authors = ["STI Chile"]
 edition = "2021"
 rust-version = "1.77.2"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [lib]
-# The `_lib` suffix may seem redundant, but it is necessary
-# to make the lib name unique and wouldn't conflict with the bin name.
 name = "docktask_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
@@ -22,18 +18,14 @@ path = "src/main.rs"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri              = { version = "2", features = ["tray-icon"] }
-tauri-plugin-shell = "2"
-tauri-plugin-sql   = { version = "2", features = ["sqlite"] }
-tauri-plugin-store = "2"
+tauri                     = { version = "2", features = ["tray-icon"] }
+tauri-plugin-shell        = "2"
+tauri-plugin-sql          = { version = "2", features = ["sqlite"] }
+tauri-plugin-store        = "2"
 tauri-plugin-notification = "2"
-tauri-plugin-updater = { version = "2", optional = true }
-
-[features]
-updater = ["tauri-plugin-updater"]
-tauri-plugin-http  = "2"
-tauri-plugin-os        = "2"
-tauri-plugin-deep-link = "2"
+tauri-plugin-http         = "2"
+tauri-plugin-os           = "2"
+tauri-plugin-deep-link    = "2"
 serde       = { version = "1", features = ["derive"] }
 serde_json  = "1"
 tokio       = { version = "1", features = ["full"] }
@@ -43,7 +35,10 @@ rusqlite    = { version = "0.31", features = ["bundled"] }
 log         = "0.4"
 env_logger  = "0.11"
 
+# Auto-updater: solo en desktop (no Android/iOS)
+[target.'cfg(not(target_os = "android"))'.dependencies]
+tauri-plugin-updater = "2"
+
 [features]
-# This feature is used for production builds or when a dev server is not specified.
-# It's used to point to the frontend dist directory.
+# Para builds de producción con protocolo custom (Tauri default)
 custom-protocol = ["tauri/custom-protocol"]
