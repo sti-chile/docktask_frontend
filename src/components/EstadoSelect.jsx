@@ -1,10 +1,11 @@
 import React from 'react';
-import { 
+import {
   ClockIcon,
   CheckCircleIcon,
   ArchiveBoxIcon,
   ClockIcon as ClockIconSolid,
-  ChevronDownIcon
+  ChevronDownIcon,
+  ExclamationTriangleIcon
 } from "@heroicons/react/24/outline";
 
 import {
@@ -27,6 +28,8 @@ const EstadoSelect = ({ estado, onChange, disabled = false }) => {
         return <CheckCircleIcon className="h-4 w-4 text-green-500" />;
       case 'archivado':
         return <ArchiveBoxIcon className="h-4 w-4 text-yellow-500" />;
+      case 'urgente':
+        return <ExclamationTriangleIcon className="h-4 w-4 text-red-500" />;
       default:
         return <ClockIcon className="h-4 w-4 text-gray-500" />;
     }
@@ -42,6 +45,8 @@ const EstadoSelect = ({ estado, onChange, disabled = false }) => {
         return 'bg-green-100 text-green-800';
       case 'archivado':
         return 'bg-gray-100 text-gray-800';
+      case 'urgente':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -75,6 +80,9 @@ const EstadoSelect = ({ estado, onChange, disabled = false }) => {
         <option value="archivado" className="flex items-center gap-2">
           <ArchiveBoxIcon className="h-4 w-4 text-yellow-500 bg-yellow-50" />
           Archivado
+        </option>
+        <option value="urgente" className="flex items-center gap-2">
+          Urgente
         </option>
       </select>
       <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none">

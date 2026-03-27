@@ -244,7 +244,7 @@ function EditUsers({ token }) {
             <div className="flex space-x-4">
               <button
                 type="submit"
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
               >
                 <PencilIcon className="h-5 w-5" />
                 Guardar Cambios

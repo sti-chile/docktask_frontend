@@ -110,7 +110,7 @@ function EditProject({ token }) {
             />
         </div>
         <div className="flex justify-end">
-          <button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">Actualizar</button>
+          <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-md transition-colors duration-200">Actualizar</button>
         </div>
       </form>
     </div>
