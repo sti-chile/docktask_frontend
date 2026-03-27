@@ -97,15 +97,32 @@ jobs:
           NDK_HOME: ${{ env.NDK_HOME }}
           ANDROID_NDK_HOME: ${{ env.NDK_HOME }}
 
-      # ── Firmar APK con keystore de release ────────────────────────
+      # ── Obtener versión desde tauri.conf.json ─────────────────────
+      - name: Get app version
+        id: version
+        run: |
+          VERSION=$(python3 -c "import json; print(json.load(open('src-tauri/tauri.conf.json'))['version'])")
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      # ── Firmar APK (solo en push a main o workflow_dispatch) ───────
       - name: Setup keystore
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > /tmp/docktask.keystore
+          chmod 600 /tmp/docktask.keystore
           echo "KEYSTORE_PATH=/tmp/docktask.keystore" >> $GITHUB_ENV
 
       - name: Sign APK
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
-          UNSIGNED=$(find src-tauri/gen/android -name "*unsigned*.apk" -o -name "*release*.apk" 2>/dev/null | head -1)
+          UNSIGNED=$(find src-tauri/gen/android -type f \( -name "*unsigned*.apk" -o -name "*release*.apk" \) 2>/dev/null | head -1)
+
+          if [ -z "$UNSIGNED" ] || [ ! -f "$UNSIGNED" ]; then
+            echo "❌ No se encontró el APK sin firmar en src-tauri/gen/android"
+            find src-tauri/gen/android -name "*.apk" 2>/dev/null || echo "(ningún .apk encontrado)"
+            exit 1
+          fi
+
           echo "APK sin firmar: $UNSIGNED"
 
           $BUILD_TOOLS/zipalign -v -p 4 "$UNSIGNED" /tmp/docktask-aligned.apk
@@ -119,22 +136,33 @@ jobs:
             /tmp/docktask-aligned.apk
 
           $BUILD_TOOLS/apksigner verify --verbose /tmp/docktask-signed.apk
+          rm -f /tmp/docktask.keystore
           echo "✅ APK firmado correctamente"
 
-      # ── Obtener versión desde tauri.conf.json ─────────────────────
-      - name: Get app version
-        id: version
-        run: |
-          VERSION=$(cat src-tauri/tauri.conf.json | python3 -c "import sys,json; print(json.load(sys.stdin)['version'])")
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-
-      # ── Subir APK firmado ─────────────────────────────────────────
+      # ── Subir APK firmado (push/dispatch) ─────────────────────────
       - name: Upload signed APK
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: docktask-v${{ steps.version.outputs.version }}-android
           path: /tmp/docktask-signed.apk
           retention-days: 30
+
+      # ── Subir APK sin firmar (solo PRs) ───────────────────────────
+      - name: Find unsigned APK (PR only)
+        id: find-apk
+        if: github.event_name == 'pull_request'
+        run: |
+          APK=$(find src-tauri/gen/android -type f -name "*.apk" 2>/dev/null | head -1)
+          echo "apk_path=${APK:-not_found}" >> $GITHUB_OUTPUT
+
+      - name: Upload unsigned APK (PR only)
+        if: github.event_name == 'pull_request' && steps.find-apk.outputs.apk_path != 'not_found'
+        uses: actions/upload-artifact@v4
+        with:
+          name: docktask-v${{ steps.version.outputs.version }}-android-unsigned-pr
+          path: ${{ steps.find-apk.outputs.apk_path }}
+          retention-days: 7
 
       # ── Resumen ───────────────────────────────────────────────────
       - name: Summary
@@ -142,4 +170,4 @@ jobs:
           echo "### ✅ Build Android completado" >> $GITHUB_STEP_SUMMARY
           echo "- **Versión:** v${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **APK:** firmado con keystore de release" >> $GITHUB_STEP_SUMMARY
+          echo "- **Firma:** ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 'keystore de release' || 'sin firmar (PR)' }}" >> $GITHUB_STEP_SUMMARY
