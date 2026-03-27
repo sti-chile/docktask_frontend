@@ -84,6 +84,8 @@ jobs:
       # ── Build frontend ────────────────────────────────────────────
       - name: Build frontend
         run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       # ── Tauri Android init (genera src-tauri/gen/android) ─────────
       - name: Tauri Android init
