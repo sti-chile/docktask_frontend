@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { buildAxios } from '../api/axiosInstance';
 import { UserPlusIcon, UserIcon, LockClosedIcon, EnvelopeIcon, PhoneIcon,
   UserCircleIcon, IdentificationIcon
@@ -14,16 +14,10 @@ const RegisterForm = () => {
   const [phone, setPhone] = useState('');
   const [mensaje, setMensaje] = useState('');
   const navigate = useNavigate();
+  const redirectTimer = useRef(null);
 
-  // Limpiar campos al montar el componente
   useEffect(() => {
-    setUsername('');
-    setPassword('');
-    setNombre('');
-    setApellido('');
-    setEmail('');
-    setPhone('');
-    setMensaje('');
+    return () => clearTimeout(redirectTimer.current);
   }, []);
 
   const handleRegister = async (e) => {
@@ -38,7 +32,6 @@ const RegisterForm = () => {
         email,
         phone
       });
-      console.log(res.data);
       setMensaje('Usuario registrado exitosamente ✅');
       // Limpiar campos después de un registro exitoso
       setUsername('');
@@ -47,12 +40,10 @@ const RegisterForm = () => {
       setApellido('');
       setEmail('');
       setPhone('');
-      // Redirigir al login después de 2 segundos
-      setTimeout(() => {
+      redirectTimer.current = setTimeout(() => {
         navigate('/');
       }, 2000);
     } catch (err) {
-      console.log(err);
       if (err.response?.status === 409) {
         setMensaje('El usuario ya existe ❌');
       } else {

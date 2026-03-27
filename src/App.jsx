@@ -94,9 +94,9 @@ function App() {
                   userData={user}
                   isLoading={false}
                   ultimosMensajes={ultimosMensajes}
-                  onCrearMensaje={() => window.location.href = `${window.location.origin}/create`}
-                  onCrearProyecto={() => window.location.href = `${window.location.origin}/crear-proyecto`}
-                  onVerTodosMensajes={() => window.location.href = `${window.location.origin}/mis-mensajes`}
+                  onCrearMensaje={() => navigate('/create')}
+                  onCrearProyecto={() => navigate('/crear-proyecto')}
+                  onVerTodosMensajes={() => navigate('/mis-mensajes')}
                 />
               </PrivateRoute>
             }
@@ -109,7 +109,6 @@ function App() {
           <Route path="/gantt" element={<Navigate to="/mis-proyectos" replace />} />
           {token && (
             <>
-              <Route path="/" element={<PrivateRoute token={token}><Dashboard token={token} /></PrivateRoute>} />
               <Route path="/mis-mensajes" element={<PrivateRoute token={token}><MessagesContainer token={token} /></PrivateRoute>} />
               <Route path="/create" element={<PrivateRoute token={token}><CreateMessage token={token} /></PrivateRoute>} />
               <Route path="/edit/:id" element={<PrivateRoute token={token}><EditMessage token={token} /></PrivateRoute>} />

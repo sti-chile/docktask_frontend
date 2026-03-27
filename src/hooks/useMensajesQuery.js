@@ -9,125 +9,85 @@ export const useMensajesQuery = (token) => {
   const { data: mensajes = [], isLoading, error, refetch: cargarMensajes } = useQuery({
     queryKey: ['mensajes'],
     queryFn: async () => {
-      try {
-        const response = await axios.get('/api/mis-mensajes');
-        return Array.isArray(response.data) ? response.data : [];
-      } catch (error) {
-        console.error('Error al cargar mensajes:', error);
-        toast.error('Error al cargar los mensajes');
-        return [];
-      }
+      const response = await axios.get('/api/mis-mensajes');
+      return Array.isArray(response.data) ? response.data : [];
     },
+    onError: () => toast.error('Error al cargar los mensajes'),
     enabled: !!token
   });
 
   const crearMensaje = useMutation({
     mutationFn: async (nuevoMensaje) => {
-      try {
-        // Cambiar la clave a proyecto_id y eliminar project_id
-        const mensajeData = {
-          ...nuevoMensaje,
-          proyecto_id: nuevoMensaje.project_id ? parseInt(nuevoMensaje.project_id) : null
-        };
-        delete mensajeData.project_id;
-        
-        console.log('Enviando datos:', mensajeData); // Para debugging
-        const response = await axios.post('/api/mensajes', mensajeData);
-        return response.data;
-      } catch (error) {
-        console.error('Error al crear mensaje:', error.response?.data || error);
-        const errorMessage = error.response?.data?.message || 'Error al crear el mensaje';
-        toast.error(errorMessage);
-        throw error;
-      }
+      const mensajeData = {
+        ...nuevoMensaje,
+        proyecto_id: nuevoMensaje.project_id ? parseInt(nuevoMensaje.project_id) : null
+      };
+      delete mensajeData.project_id;
+      const response = await axios.post('/api/mensajes', mensajeData);
+      return response.data;
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
       toast.success('Mensaje creado correctamente');
+    },
+    onError: (error) => {
+      const errorMessage = error.response?.data?.message || 'Error al crear el mensaje';
+      toast.error(errorMessage);
     }
   });
 
   const cambiarEstado = useMutation({
     mutationFn: async ({ id, estado }) => {
-      try {
-        const response = await axios.put(`/api/mensajes/${id}`, { estado });
-        return response.data;
-      } catch (error) {
-        console.error('Error al actualizar estado:', error);
-        toast.error('Error al actualizar el estado');
-        throw error;
-      }
+      const response = await axios.put(`/api/mensajes/${id}`, { estado });
+      return response.data;
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
       toast.success('Estado actualizado correctamente');
-    }
+    },
+    onError: () => toast.error('Error al actualizar el estado')
   });
 
   const eliminarMensaje = useMutation({
     mutationFn: async (id) => {
-      try {
-        await axios.delete(`/api/mensajes/${id}`);
-      } catch (error) {
-        console.error('Error al eliminar mensaje:', error);
-        toast.error('Error al eliminar el mensaje');
-        throw error;
-      }
+      await axios.delete(`/api/mensajes/${id}`);
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
       toast.success('Mensaje eliminado correctamente');
-    }
+    },
+    onError: () => toast.error('Error al eliminar el mensaje')
   });
 
   const duplicarMensaje = useMutation({
     mutationFn: async (id) => {
-      try {
-        const response = await axios.post(`/api/mis-mensajes/${id}/duplicate`);
-        return response.data;
-      } catch (error) {
-        console.error('Error al duplicar mensaje:', error.response?.data || error);
-        toast.error('Error al duplicar el mensaje');
-        throw error;
-      }
+      const response = await axios.post(`/api/mis-mensajes/${id}/duplicate`);
+      return response.data;
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
       toast.success('Mensaje duplicado correctamente');
-    }
+    },
+    onError: () => toast.error('Error al duplicar el mensaje')
   });
 
   const actualizarFechaExpiracion = useMutation({
     mutationFn: async ({ id, expiration_date }) => {
-      try {
-        console.log('useMensajesQuery - Fecha recibida:', expiration_date);
-        console.log('useMensajesQuery - Tipo de fecha recibida:', typeof expiration_date);
+      if (!expiration_date) throw new Error('La fecha de expiración es requerida');
 
-        if (!expiration_date) {
-          throw new Error('La fecha de expiración es requerida');
-        }
-
-        // Validar que la fecha tenga el formato correcto YYYY-MM-DDTHH:mm
-        const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
-        if (!dateRegex.test(expiration_date)) {
-          console.error('useMensajesQuery - Formato de fecha inválido:', expiration_date);
-          throw new Error('Formato de fecha inválido. Debe ser YYYY-MM-DDTHH:mm');
-        }
-
-        console.log('useMensajesQuery - Enviando al servidor:', { id, expiration_date });
-        const response = await axios.put(`/api/mensajes/${id}`, { expiration_date });
-        console.log('useMensajesQuery - Respuesta del servidor:', response.data);
-        return response.data;
-      } catch (error) {
-        console.error('useMensajesQuery - Error completo:', error);
-        toast.error(error.message || 'Error al actualizar la fecha de expiración');
-        throw error;
+      const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+      if (!dateRegex.test(expiration_date)) {
+        throw new Error('Formato de fecha inválido. Debe ser YYYY-MM-DDTHH:mm');
       }
+
+      const response = await axios.put(`/api/mensajes/${id}`, { expiration_date });
+      return response.data;
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
       toast.success('Fecha de expiración actualizada correctamente');
-    }
+    },
+    onError: (error) => toast.error(error.message || 'Error al actualizar la fecha de expiración')
   });
 
   return {

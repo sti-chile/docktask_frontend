@@ -13,24 +13,10 @@ export const useProjectQuery = (token) => {
     queryFn: async () => {
       try {
         const response = await axios.get('/api/proyectos');
-        console.log('Respuesta de proyectos:', response.data); // Para debugging
         const proyectos = response.data || [];
         const user = jwtDecode(token);
-        console.log("user_id", user.sub);
         const owner_id = user.sub;
-        console.log("owner_id", owner_id);
-        const filtradosPorOwner = proyectos.filter(proyecto => {
-          const projectOwnerId = String(proyecto.owner_id);
-          const userOwnerId = String(owner_id);
-          console.log('Comparando IDs:', {
-            projectOwnerId,
-            userOwnerId,
-            sonIguales: projectOwnerId === userOwnerId
-          });
-          return projectOwnerId === userOwnerId;
-        });
-        console.log("filtradosPorOwner", filtradosPorOwner);
-        return filtradosPorOwner;
+        return proyectos.filter(proyecto => String(proyecto.owner_id) === String(owner_id));
       } catch (error) {
         console.error('Error al cargar proyectos:', error);
         toast.error('Error al cargar los proyectos');
