@@ -14,11 +14,6 @@ on:
       - 'src/**'
       - 'src-tauri/**'
   workflow_dispatch:
-    inputs:
-      release:
-        description: 'Build release APK (signed)'
-        required: false
-        default: 'false'
 
 env:
   NDK_VERSION: "27.0.12077973"
@@ -88,86 +83,63 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # ── Tauri Android init (genera src-tauri/gen/android) ─────────
+      # ── Tauri Android init ─────────────────────────────────────────
       - name: Tauri Android init
         run: npm run tauri -- android init
         env:
           NDK_HOME: ${{ env.NDK_HOME }}
           ANDROID_NDK_HOME: ${{ env.NDK_HOME }}
 
-      # ── Restaurar debug keystore fijo (evita firma diferente en cada build) ──
-      - name: Restore debug keystore
-        run: |
-          mkdir -p ~/.android
-          echo "${{ secrets.ANDROID_DEBUG_KEYSTORE_BASE64 }}" | base64 -d > ~/.android/debug.keystore
-
-      # ── Build APK ─────────────────────────────────────────────────
+      # ── Build APK (release sin firmar) ────────────────────────────
       - name: Build Android APK
         run: npm run tauri:build:android -- --apk
         env:
           NDK_HOME: ${{ env.NDK_HOME }}
           ANDROID_NDK_HOME: ${{ env.NDK_HOME }}
 
-      # ── Firma manual con apksigner (solo en release) ───────────────
+      # ── Firmar APK con keystore de release ────────────────────────
       - name: Setup keystore
-        if: github.event.inputs.release == 'true'
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > /tmp/docktask.keystore
           echo "KEYSTORE_PATH=/tmp/docktask.keystore" >> $GITHUB_ENV
 
       - name: Sign APK
-        if: github.event.inputs.release == 'true'
         run: |
-          UNSIGNED=$(find src-tauri/gen/android -name "*.apk" | head -1)
+          UNSIGNED=$(find src-tauri/gen/android -name "*unsigned*.apk" -o -name "*release*.apk" 2>/dev/null | head -1)
           echo "APK sin firmar: $UNSIGNED"
 
-          # Zipalign (alinear antes de firmar)
           $BUILD_TOOLS/zipalign -v -p 4 "$UNSIGNED" /tmp/docktask-aligned.apk
 
-          # Firmar con apksigner
-          # Nota: PKCS12 (OpenSSL) requiere que key-pass = store-pass en Java
           $BUILD_TOOLS/apksigner sign \
             --ks "$KEYSTORE_PATH" \
             --ks-key-alias "${{ secrets.ANDROID_KEY_ALIAS }}" \
             --ks-pass "pass:${{ secrets.ANDROID_STORE_PASSWORD }}" \
-            --key-pass "pass:${{ secrets.ANDROID_STORE_PASSWORD }}" \
-            --out /tmp/docktask-release-signed.apk \
+            --key-pass "pass:${{ secrets.ANDROID_KEY_PASSWORD }}" \
+            --out /tmp/docktask-signed.apk \
             /tmp/docktask-aligned.apk
 
-          # Verificar firma
-          $BUILD_TOOLS/apksigner verify --verbose /tmp/docktask-release-signed.apk
-          echo "APK_SIGNED=/tmp/docktask-release-signed.apk" >> $GITHUB_ENV
+          $BUILD_TOOLS/apksigner verify --verbose /tmp/docktask-signed.apk
           echo "✅ APK firmado correctamente"
 
-      # ── Subir APK como artifact ───────────────────────────────────
-      - name: Find APK (debug)
-        id: find-apk
-        if: github.event.inputs.release != 'true'
+      # ── Obtener versión desde tauri.conf.json ─────────────────────
+      - name: Get app version
+        id: version
         run: |
-          APK=$(find src-tauri/gen/android -name "*.apk" 2>/dev/null | head -1)
-          echo "apk_path=${APK:-not_found}" >> $GITHUB_OUTPUT
-          echo "APK encontrado: $APK"
+          VERSION=$(cat src-tauri/tauri.conf.json | python3 -c "import sys,json; print(json.load(sys.stdin)['version'])")
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Upload APK (debug)
-        if: github.event.inputs.release != 'true' && steps.find-apk.outputs.apk_path != 'not_found'
+      # ── Subir APK firmado ─────────────────────────────────────────
+      - name: Upload signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: docktask-android-debug-${{ github.sha }}
-          path: ${{ steps.find-apk.outputs.apk_path }}
-          retention-days: 14
-
-      - name: Upload APK (release signed)
-        if: github.event.inputs.release == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: docktask-android-release-${{ github.sha }}
-          path: /tmp/docktask-release-signed.apk
+          name: docktask-v${{ steps.version.outputs.version }}-android
+          path: /tmp/docktask-signed.apk
           retention-days: 30
 
       # ── Resumen ───────────────────────────────────────────────────
       - name: Summary
         run: |
           echo "### ✅ Build Android completado" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Versión:** v${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Modo:** ${{ github.event.inputs.release == 'true' && 'Release (firmado con apksigner)' || 'Debug' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **APK:** firmado con keystore de release" >> $GITHUB_STEP_SUMMARY
