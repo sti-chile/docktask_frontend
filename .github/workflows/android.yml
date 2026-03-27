@@ -97,7 +97,6 @@ jobs:
 
       # ── Restaurar debug keystore fijo (evita firma diferente en cada build) ──
       - name: Restore debug keystore
-        if: secrets.ANDROID_DEBUG_KEYSTORE_BASE64 != ''
         run: |
           mkdir -p ~/.android
           echo "${{ secrets.ANDROID_DEBUG_KEYSTORE_BASE64 }}" | base64 -d > ~/.android/debug.keystore
