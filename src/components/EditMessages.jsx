@@ -52,7 +52,7 @@ function EditMessage({ token }) {
         <div className="flex gap-4">
           <button
             type="submit"
-            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200"
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-md transition-colors duration-200"
           >
             Guardar Cambios
           </button>
