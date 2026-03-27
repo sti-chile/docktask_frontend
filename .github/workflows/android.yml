@@ -115,6 +115,8 @@ jobs:
       - name: Sign APK
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
+          trap 'rm -f /tmp/docktask.keystore' EXIT
+
           UNSIGNED=$(find src-tauri/gen/android -type f \( -name "*unsigned*.apk" -o -name "*release*.apk" \) 2>/dev/null | head -1)
 
           if [ -z "$UNSIGNED" ] || [ ! -f "$UNSIGNED" ]; then
@@ -136,7 +138,6 @@ jobs:
             /tmp/docktask-aligned.apk
 
           $BUILD_TOOLS/apksigner verify --verbose /tmp/docktask-signed.apk
-          rm -f /tmp/docktask.keystore
           echo "✅ APK firmado correctamente"
 
       # ── Subir APK firmado (push/dispatch) ─────────────────────────
@@ -149,19 +150,24 @@ jobs:
           retention-days: 30
 
       # ── Subir APK sin firmar (solo PRs) ───────────────────────────
-      - name: Find unsigned APK (PR only)
-        id: find-apk
+      - name: Find and upload unsigned APK (PR only)
         if: github.event_name == 'pull_request'
         run: |
           APK=$(find src-tauri/gen/android -type f -name "*.apk" 2>/dev/null | head -1)
-          echo "apk_path=${APK:-not_found}" >> $GITHUB_OUTPUT
+          if [ -z "$APK" ] || [ ! -f "$APK" ]; then
+            echo "❌ No se encontró ningún APK en src-tauri/gen/android" | tee -a "$GITHUB_STEP_SUMMARY"
+            find src-tauri/gen/android 2>/dev/null || echo "(directorio no existe)"
+            exit 1
+          fi
+          echo "APK encontrado: $APK"
+          echo "apk_path=${APK}" >> $GITHUB_ENV
 
       - name: Upload unsigned APK (PR only)
-        if: github.event_name == 'pull_request' && steps.find-apk.outputs.apk_path != 'not_found'
+        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: docktask-v${{ steps.version.outputs.version }}-android-unsigned-pr
-          path: ${{ steps.find-apk.outputs.apk_path }}
+          path: ${{ env.apk_path }}
           retention-days: 7
 
       # ── Resumen ───────────────────────────────────────────────────
