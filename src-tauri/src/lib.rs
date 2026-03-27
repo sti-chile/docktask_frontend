@@ -55,10 +55,9 @@ pub fn run() {
             {
                 let app_handle = app.handle().clone();
                 app.listen("deep-link://new-url", move |event: tauri::Event| {
-                    let url = event.payload().trim_matches('"').to_string();
-                    if !url.is_empty() {
-                        log::info!("🔗 Deep link: {}", url);
-                        let _ = app_handle.emit("deeplink:navigate", url);
+                    if let Some(url) = event.payload().strip_prefix('"').and_then(|s| s.strip_suffix('"')) {
+                        log::info!("🔗 Deep link recibido: {}", url);
+                        let _ = app_handle.emit::<String>("deeplink:navigate", url.to_string());
                     }
                 });
             }

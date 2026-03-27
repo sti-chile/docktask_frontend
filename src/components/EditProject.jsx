@@ -1,46 +1,34 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { buildAxios } from "@/api/axiosInstance";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify";
 
 function EditProject({ token }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState({});
 
-
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/proyectos`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    const api = buildAxios(token);
+    api
+      .get(`/api/proyectos`)
       .then((res) => {
-        const project = res.data.find((p) => p.id === parseInt(id));
-        if (project) setProject(project);
+        const found = res.data.find((p) => p.id === parseInt(id));
+        if (found) setProject(found);
       })
-      .catch((err) => console.error("Error al cargar proyecto", err));
+      .catch(() => toast.error("Error al cargar el proyecto"));
   }, [id, token]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios
-      .put(
-        `http://localhost:5000/api/proyectos/${id}`,
-        {
-          ...project,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
+    const api = buildAxios(token);
+    api
+      .put(`/api/proyectos/${id}`, { ...project })
       .then(() => {
         toast.success("Proyecto actualizado exitosamente");
         navigate("/mis-proyectos");
       })
-      .catch((err) => {
-        toast.error("Error al actualizar el proyecto");
-        console.error("Error al actualizar", err);
-      });
+      .catch(() => toast.error("Error al actualizar el proyecto"));
   };
 
 

@@ -16,7 +16,7 @@ function EditMessage({ token }) {
         const msg = res.data.find((m) => m.id === parseInt(id));
         if (msg) setMensaje(msg.mensaje);
       })
-      .catch((err) => console.error("Error al cargar mensaje", err));
+      .catch(() => {});
   }, [id, token]);
 
   const handleSubmit = (e) => {
@@ -30,7 +30,7 @@ function EditMessage({ token }) {
         }
       )
       .then(() => navigate("/mis-mensajes"))
-      .catch((err) => console.error("Error al actualizar", err));
+      .catch(() => {});
   };
 
   return (

@@ -58,8 +58,7 @@ const CreateMessage = ({ token }) => {
       await crearMensaje.mutateAsync(formData);
       navigate(projectId ? `/mis-mensajes?project_id=${projectId}` : '/mis-mensajes');
     } catch (error) {
-      console.error('Error al crear el mensaje:', error);
-      // El mensaje de error ya se muestra en el hook
+      // El error ya se muestra en el hook
     } finally {
       setLoading(false);
     }
