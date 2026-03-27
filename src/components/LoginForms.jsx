@@ -41,14 +41,12 @@ const LoginForm = ({ onLogin }) => {
     setProgress(0);
 
     try {
-      console.log('Iniciando login...');
       const axios = buildAxios();
       const response = await axios.post('/api/login', {
         username,
         password
       });
 
-      console.log('Respuesta del servidor:', response.data);
       const { access_token: token, usuario: userData } = response.data;
       
       if (!token || !userData) {
@@ -64,8 +62,6 @@ const LoginForm = ({ onLogin }) => {
         apellido: userData.apellido
       };
       
-      console.log('Usuario creado:', user);
-
       // Guardar en localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
@@ -84,11 +80,9 @@ const LoginForm = ({ onLogin }) => {
 
       // Redirigir según el rol
       const redirectPath = user.rol === 'admin' ? '/admin' : '/mis-mensajes';
-      console.log('Redirigiendo a:', redirectPath);
       navigate(redirectPath);
 
     } catch (error) {
-      console.error('Error en login:', error);
       const errorMessage = error.response?.data?.message || 'Login fallido. Revisa tus credenciales.';
       toast.error(errorMessage);
     } finally {

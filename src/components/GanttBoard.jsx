@@ -17,11 +17,12 @@ const GanttBoard = ({ proyectoId }) => {
       return;
     }
 
+    const controller = new AbortController();
     const token = localStorage.getItem("token");
     const api = buildAxios(token);
 
     api
-      .get(`/api/proyectos/${proyectoId}/mensajes`)
+      .get(`/api/proyectos/${proyectoId}/mensajes`, { signal: controller.signal })
       .then((res) => {
         const mensajes = res.data;
 
@@ -44,12 +45,16 @@ const GanttBoard = ({ proyectoId }) => {
           setTasks(tareasValidas);
         }
       })
-      .catch(() => {
-        setError("Error al cargar los mensajes del proyecto.");
+      .catch((err) => {
+        if (err.name !== "CanceledError") {
+          setError("Error al cargar los mensajes del proyecto.");
+        }
       })
       .finally(() => {
         setLoading(false);
       });
+
+    return () => controller.abort();
   }, [proyectoId]);
 
   return (
