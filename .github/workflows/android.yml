@@ -128,18 +128,22 @@ jobs:
 
           echo "APK sin firmar: $UNSIGNED"
 
+          # Zipalign (alinear antes de firmar)
           $BUILD_TOOLS/zipalign -v -p 4 "$UNSIGNED" /tmp/docktask-aligned.apk
 
+          # Firmar con apksigner
+          # Nota: PKCS12/JKS keystores requieren que key-pass = store-pass
           $BUILD_TOOLS/apksigner sign \
             --ks "$KEYSTORE_PATH" \
             --ks-key-alias "${{ secrets.ANDROID_KEY_ALIAS }}" \
             --ks-pass "pass:${{ secrets.ANDROID_STORE_PASSWORD }}" \
-            --key-pass "pass:${{ secrets.ANDROID_KEY_PASSWORD }}" \
+            --key-pass "pass:${{ secrets.ANDROID_STORE_PASSWORD }}" \
             --out /tmp/docktask-signed.apk \
             /tmp/docktask-aligned.apk
 
+          # Verificar firma - si falla, el step falla
           $BUILD_TOOLS/apksigner verify --verbose /tmp/docktask-signed.apk
-          echo "✅ APK firmado correctamente"
+          echo "✅ APK firmado y verificado correctamente"
 
       # ── Subir APK firmado (push/dispatch) ─────────────────────────
       - name: Upload signed APK
