@@ -28,6 +28,9 @@ import GanttBoard from './components/GanttBoard';
 import WorkspacesContainer from './components/containers/WorkspacesContainer';
 import CreateWorkspace from './components/CreateWorkspace';
 import EditWorkspace from './components/EditWorkspace';
+import MusicPlayer from './components/music/MusicPlayer.jsx';
+import MusicLibrary from './components/music/MusicLibrary.jsx';
+import UploadPage from './components/music/UploadPage.jsx';
 
 function App() {
   const navigate = useNavigate();
@@ -130,6 +133,10 @@ function App() {
               {user?.rol === "admin" && (
                 <Route path="/admin" element={<PrivateRoute token={token}><EditUsers /></PrivateRoute>} />
               )}
+              {/* Música */}
+              <Route path="/music" element={<PrivateRoute token={token}><MusicPlayer /></PrivateRoute>} />
+              <Route path="/music/library" element={<PrivateRoute token={token}><MusicLibrary /></PrivateRoute>} />
+              <Route path="/music/upload" element={<PrivateRoute token={token}><UploadPage /></PrivateRoute>} />
             </>
           )}
         </Routes>
