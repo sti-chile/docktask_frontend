@@ -40,6 +40,11 @@ pub fn run() {
             commands::calendar::add_to_os_calendar,
             commands::calendar::remove_from_os_calendar,
             commands::system::get_network_status,
+            // Audio
+            commands::audio::list_local_audio_files,
+            commands::audio::cache_audio_from_s3,
+            commands::audio::get_cached_audio_path,
+            commands::audio::cleanup_audio_cache,
         ])
         // ── Setup: sync worker + deep link handler ────────────────────────
         .setup(|app| {
