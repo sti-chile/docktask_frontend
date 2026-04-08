@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { buildAxios } from '../api/axiosInstance';
+import { createHttpClient, httpClient } from '@/lib/httpClient';
 
 function EditMessage({ token }) {
   const { id } = useParams();
@@ -9,11 +8,11 @@ function EditMessage({ token }) {
   const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
-    const axios = buildAxios(token);
-    axios
+    const api = token ? createHttpClient(token) : httpClient;
+    api
       .get(`/api/mis-mensajes`)
-      .then((res) => {
-        const msg = res.data.find((m) => m.id === parseInt(id));
+      .then((data) => {
+        const msg = data.find((m) => m.id === parseInt(id));
         if (msg) setMensaje(msg.mensaje);
       })
       .catch(() => {});
@@ -21,8 +20,8 @@ function EditMessage({ token }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const axios = buildAxios(token);
-    axios
+    const api = token ? createHttpClient(token) : httpClient;
+    api
       .put(
         `/api/mensajes/${id}`,
         {

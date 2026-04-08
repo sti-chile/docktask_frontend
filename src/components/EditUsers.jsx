@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { UserPlusIcon, UserIcon, LockClosedIcon, IdentificationIcon, PencilIcon, TrashIcon, ArrowLeftIcon } from '@heroicons/react/24/outline/index.js';
-import { buildAxios } from '../api/axiosInstance';
+import { createHttpClient, httpClient } from '@/lib/httpClient';
 
 function EditUsers({ token }) {
   const { id } = useParams();
@@ -30,9 +30,9 @@ function EditUsers({ token }) {
   const obtenerUsuarios = async () => {
     setLoading(true);
     try {
-      const axios = buildAxios(token);
-      const res = await axios.get("/admin/api/usuarios");
-      setUsuarios(res.data);
+      const api = token ? createHttpClient(token) : httpClient;
+      const data = await api.get("/admin/api/usuarios");
+      setUsuarios(data);
     } catch (err) {
       setError("Error al obtener usuarios");
       console.error(err);
@@ -45,9 +45,9 @@ function EditUsers({ token }) {
   const obtenerUsuario = async (userId) => {
     setLoading(true);
     try {
-      const axios = buildAxios(token);
-      const res = await axios.get(`/admin/api/usuarios/${userId}`);
-      setEditingUser(res.data);
+      const api = token ? createHttpClient(token) : httpClient;
+      const data = await api.get(`/admin/api/usuarios/${userId}`);
+      setEditingUser(data);
     } catch (err) {
       setError("Error al obtener usuario");
       console.error(err);
@@ -75,8 +75,8 @@ function EditUsers({ token }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const axios = buildAxios(token);
-      await axios.post('/admin/api/usuarios', newUser);
+      const api = token ? createHttpClient(token) : httpClient;
+      await api.post('/admin/api/usuarios', newUser);
       
       toast.success('Usuario creado exitosamente', {
         position: "top-right",
@@ -105,8 +105,8 @@ function EditUsers({ token }) {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      const axios = buildAxios(token);
-      await axios.put(`/admin/api/usuarios/${id}`, editingUser);
+      const api = token ? createHttpClient(token) : httpClient;
+      await api.put(`/admin/api/usuarios/${id}`, editingUser);
       
       toast.success('Usuario actualizado exitosamente');
       navigate('/admin');
@@ -122,8 +122,8 @@ function EditUsers({ token }) {
     }
     try {
       setLoading(true);
-      const axios = buildAxios(token);
-      await axios.delete(`/admin/api/usuarios/${userId}`);
+      const api = token ? createHttpClient(token) : httpClient;
+      await api.delete(`/admin/api/usuarios/${userId}`);
       
       toast.success('Usuario eliminado exitosamente');
       obtenerUsuarios();
