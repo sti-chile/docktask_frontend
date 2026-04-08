@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { UserIcon, LockClosedIcon } from '@heroicons/react/24/outline';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { buildAxios } from '../api/axiosInstance';
+import { httpClient } from '@/lib/httpClient';
 
 const LoginForm = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -10,7 +10,6 @@ const LoginForm = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Limpiar campos al montar el componente
   useEffect(() => {
@@ -41,13 +40,12 @@ const LoginForm = ({ onLogin }) => {
     setProgress(0);
 
     try {
-      const axios = buildAxios();
-      const response = await axios.post('/api/login', {
+      const response = await httpClient.post('/api/login', {
         username,
         password
       });
 
-      const { access_token: token, usuario: userData } = response.data;
+      const { access_token: token, usuario: userData } = response;
       
       if (!token || !userData) {
         throw new Error('Respuesta del servidor inválida');
@@ -83,7 +81,7 @@ const LoginForm = ({ onLogin }) => {
       navigate(redirectPath);
 
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Login fallido. Revisa tus credenciales.';
+      const errorMessage = error.message || 'Login fallido. Revisa tus credenciales.';
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
