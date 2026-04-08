@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { buildAxios } from '../api/axiosInstance';
+import { httpClient } from '@/lib/httpClient';
 import { UserPlusIcon, UserIcon, LockClosedIcon, EnvelopeIcon, PhoneIcon,
   UserCircleIcon, IdentificationIcon
  } from '@heroicons/react/24/outline';
@@ -23,8 +23,7 @@ const RegisterForm = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try { 
-      const axios = buildAxios();
-      const res = await axios.post('/api/register', {
+      await httpClient.post('/api/register', {
         username,
         password,
         nombre,
@@ -44,7 +43,7 @@ const RegisterForm = () => {
         navigate('/');
       }, 2000);
     } catch (err) {
-      if (err.response?.status === 409) {
+      if (err.status === 409) {
         setMensaje('El usuario ya existe ❌');
       } else {
         setMensaje('Error al registrar usuario ❌');

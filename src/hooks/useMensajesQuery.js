@@ -1,18 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { buildAxios } from '../api/axiosInstance';
+import { createHttpClient } from '../lib/httpClient';
 
 export const useMensajesQuery = (token) => {
-  const axios = buildAxios(token);
+  const http = createHttpClient(token);
   const qc = useQueryClient();
 
   const { data: mensajes = [], isLoading, error, refetch: cargarMensajes } = useQuery({
     queryKey: ['mensajes'],
     queryFn: async () => {
-      const response = await axios.get('/api/mis-mensajes');
-      return Array.isArray(response.data) ? response.data : [];
+      const data = await http.get('/api/mis-mensajes');
+      return Array.isArray(data) ? data : [];
     },
-    onError: () => toast.error('Error al cargar los mensajes'),
+    onError: (error) => toast.error(error.message || 'Error al cargar los mensajes'),
     enabled: !!token
   });
 
@@ -23,52 +23,46 @@ export const useMensajesQuery = (token) => {
         proyecto_id: nuevoMensaje.project_id ? parseInt(nuevoMensaje.project_id) : null
       };
       delete mensajeData.project_id;
-      const response = await axios.post('/api/mensajes', mensajeData);
-      return response.data;
+      return http.post('/api/mensajes', mensajeData);
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
       toast.success('Mensaje creado correctamente');
     },
-    onError: (error) => {
-      const errorMessage = error.response?.data?.message || 'Error al crear el mensaje';
-      toast.error(errorMessage);
-    }
+    onError: (error) => toast.error(error.message || 'Error al crear el mensaje')
   });
 
   const cambiarEstado = useMutation({
     mutationFn: async ({ id, estado }) => {
-      const response = await axios.put(`/api/mensajes/${id}`, { estado });
-      return response.data;
+      return http.put(`/api/mensajes/${id}`, { estado });
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
       toast.success('Estado actualizado correctamente');
     },
-    onError: () => toast.error('Error al actualizar el estado')
+    onError: (error) => toast.error(error.message || 'Error al actualizar el estado')
   });
 
   const eliminarMensaje = useMutation({
     mutationFn: async (id) => {
-      await axios.delete(`/api/mensajes/${id}`);
+      return http.delete(`/api/mensajes/${id}`);
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
       toast.success('Mensaje eliminado correctamente');
     },
-    onError: () => toast.error('Error al eliminar el mensaje')
+    onError: (error) => toast.error(error.message || 'Error al eliminar el mensaje')
   });
 
   const duplicarMensaje = useMutation({
     mutationFn: async (id) => {
-      const response = await axios.post(`/api/mis-mensajes/${id}/duplicate`);
-      return response.data;
+      return http.post(`/api/mis-mensajes/${id}/duplicate`);
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
       toast.success('Mensaje duplicado correctamente');
     },
-    onError: () => toast.error('Error al duplicar el mensaje')
+    onError: (error) => toast.error(error.message || 'Error al duplicar el mensaje')
   });
 
   const actualizarFechaExpiracion = useMutation({
@@ -80,8 +74,7 @@ export const useMensajesQuery = (token) => {
         throw new Error('Formato de fecha inválido. Debe ser YYYY-MM-DDTHH:mm');
       }
 
-      const response = await axios.put(`/api/mensajes/${id}`, { expiration_date });
-      return response.data;
+      return http.put(`/api/mensajes/${id}`, { expiration_date });
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);

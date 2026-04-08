@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Gantt } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { buildAxios } from "@/api/axiosInstance";
+import { createHttpClient } from "@/lib/httpClient";
 
 const GanttBoard = ({ proyectoId }) => {
   const [tasks, setTasks] = useState([]);
@@ -19,13 +19,11 @@ const GanttBoard = ({ proyectoId }) => {
 
     const controller = new AbortController();
     const token = localStorage.getItem("token");
-    const api = buildAxios(token);
+    const api = createHttpClient(token);
 
     api
       .get(`/api/proyectos/${proyectoId}/mensajes`, { signal: controller.signal })
-      .then((res) => {
-        const mensajes = res.data;
-
+      .then((mensajes) => {
         const tareasValidas = mensajes
           .filter((m) => m.start_date && m.expiration_date)
           .map((m) => ({
@@ -46,7 +44,7 @@ const GanttBoard = ({ proyectoId }) => {
         }
       })
       .catch((err) => {
-        if (err.name !== "CanceledError") {
+        if (err.name !== "AbortError") {
           setError("Error al cargar los mensajes del proyecto.");
         }
       })
