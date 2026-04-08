@@ -1,7 +1,6 @@
 //! Comandos relacionados con audio para DockTask Music.
 //! Permite listar archivos locales, cachear desde S3, y manejar reproducción offline.
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
 use tauri::Manager;
 use tauri_plugin_store::StoreExt;
 
@@ -23,7 +22,7 @@ pub struct CacheRequest {
 /// Lista archivos de audio en el directorio de música del dispositivo (solo Android/iOS).
 /// En desktop busca en ~/Music o directorio seleccionado.
 #[tauri::command]
-pub async fn list_local_audio_files(app: tauri::AppHandle) -> Result<Vec<LocalAudioFile>, String> {
+pub async fn list_local_audio_files(_app: tauri::AppHandle) -> Result<Vec<LocalAudioFile>, String> {
     // TODO: Implementar según plataforma
     // Para Android: usar intent o mediastore
     // Para iOS: usar MPMediaQuery
@@ -84,17 +83,15 @@ pub async fn cache_audio_from_s3(
     std::fs::write(&local_path, &bytes)
         .map_err(|e| format!("Error escribiendo archivo cache: {}", e))?;
     
-    // Registrar en store (SQLite) para seguimiento
+    // Registrar en store para seguimiento
     let store = app.store("music_cache.json").map_err(|e| e.to_string())?;
-    let mut store = store.lock().await;
     let key = format!("track_{}", track_id);
     store.set(key, serde_json::json!({
         "path": local_path.to_string_lossy(),
         "size": bytes.len(),
         "cached_at": chrono::Utc::now().to_rfc3339(),
-    }))
-    .map_err(|e| e.to_string())?;
-    store.save().await.map_err(|e| e.to_string())?;
+    }));
+    store.save().map_err(|e| e.to_string())?;
     
     Ok(local_path.to_string_lossy().into_owned())
 }
@@ -125,7 +122,7 @@ pub async fn get_cached_audio_path(
 #[tauri::command]
 pub async fn cleanup_audio_cache(
     app: tauri::AppHandle,
-    max_size_mb: u64,
+    _max_size_mb: u64,
 ) -> Result<u64, String> {
     let cache_dir = app
         .path()
