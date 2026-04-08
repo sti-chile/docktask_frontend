@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import httpClient from '../../lib/httpClient';
+import { httpClient } from '../../lib/httpClient';
 import { useTauri } from '../../hooks/useTauri';
 
 const MusicPlayer = () => {
@@ -124,7 +124,7 @@ const MusicPlayer = () => {
       {/* Reproductor principal */}
       <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
         {/* Portada (placeholder) */}
-        <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center">
+        <div className="w-24 h-24 bg-gradient-to-br from-primary/70 to-primary rounded-lg flex items-center justify-center">
           <span className="text-white text-4xl">♪</span>
         </div>
 
@@ -167,7 +167,7 @@ const MusicPlayer = () => {
               </button>
               <button
                 onClick={handlePlayPause}
-                className="p-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="p-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 title={isPlaying ? 'Pausa' : 'Reproducir'}
               >
                 {isPlaying ? (
@@ -230,7 +230,7 @@ const MusicPlayer = () => {
         </button>
         <button
           onClick={() => navigate('/music/upload')}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+          className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium"
         >
           Subir canción
         </button>

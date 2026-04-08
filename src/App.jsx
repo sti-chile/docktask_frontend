@@ -31,6 +31,7 @@ import EditWorkspace from './components/EditWorkspace';
 import MusicPlayer from './components/music/MusicPlayer.jsx';
 import MusicLibrary from './components/music/MusicLibrary.jsx';
 import UploadPage from './components/music/UploadPage.jsx';
+import MusicFab from './components/music/MusicFab.jsx';
 
 function App() {
   const navigate = useNavigate();
@@ -143,6 +144,9 @@ function App() {
 
       {/* Auto-updater — solo desktop, banner no intrusivo */}
       <UpdateChecker />
+
+      {/* Music FAB — botón flotante para acceder a la música */}
+      {token && <MusicFab />}
 
       <ToastContainer
         position="top-right"
