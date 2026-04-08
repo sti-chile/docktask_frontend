@@ -15,9 +15,9 @@ const ViewSwitcher = ({ activeView, onChange }) => (
         key={key}
         onClick={() => onChange(key)}
         className={`flex items-center gap-2 px-4 py-2 rounded-md font-semibold transition-colors duration-200
-          ${activeView === key ? 'bg-blue-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-blue-100'}`}
+          ${activeView === key ? 'bg-primary text-primary-foreground shadow' : 'bg-gray-100 text-gray-700 hover:bg-primary/10'}`}
       >
-        <Icon className={`h-5 w-5 ${activeView === key ? 'text-white' : 'text-blue-500'}`} />
+        <Icon className={`h-5 w-5 ${activeView === key ? 'text-primary-foreground' : 'text-primary'}`} />
         {label}
       </button>
     ))}
