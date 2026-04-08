@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axios from '../api/axiosInstance';
+import httpClient from '../../lib/httpClient';
 
 const UploadPage = () => {
   const [file, setFile] = useState(null);
@@ -54,7 +54,7 @@ const UploadPage = () => {
 
     try {
       // 1. Solicitar pre‑signed URL al backend
-      const response = await axios.post('/api/v1/music/tracks/upload', {
+      const response = await httpClient.post('/api/v1/music/tracks/upload', {
         title,
         artist,
         album,
@@ -80,7 +80,7 @@ const UploadPage = () => {
         if (xhr.status === 200) {
           // 3. Confirmar subida exitosa al backend
           try {
-            await axios.post(`/api/v1/music/tracks/${track_id}/confirm`, {
+            await httpClient.post(`/api/v1/music/tracks/${track_id}/confirm`, {
               duration: 0, // TODO: extraer duración del archivo con Web Audio API
             });
             toast.success('Canción subida exitosamente');

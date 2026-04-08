@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axios from '../api/axiosInstance';
+import httpClient from '../../lib/httpClient';
 
 const MusicLibrary = () => {
   const [tracks, setTracks] = useState([]);
@@ -20,8 +20,8 @@ const MusicLibrary = () => {
   const fetchTracks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/v1/music/tracks');
-      setTracks(response.data || []);
+      const data = await httpClient.get('/api/v1/music/tracks');
+      setTracks(data || []);
     } catch (error) {
       console.error('Error cargando tracks:', error);
       toast.error('No se pudieron cargar las pistas');
@@ -32,8 +32,8 @@ const MusicLibrary = () => {
 
   const fetchPlaylists = async () => {
     try {
-      const response = await axios.get('/api/v1/music/playlists');
-      setPlaylists(response.data || []);
+      const data = await httpClient.get('/api/v1/music/playlists');
+      setPlaylists(data || []);
     } catch (error) {
       console.error('Error cargando playlists:', error);
     }
@@ -42,7 +42,7 @@ const MusicLibrary = () => {
   const handleDeleteTrack = async (trackId) => {
     if (!window.confirm('¿Eliminar esta pista permanentemente?')) return;
     try {
-      await axios.delete(`/api/v1/music/tracks/${trackId}`);
+      await httpClient.delete(`/api/v1/music/tracks/${trackId}`);
       toast.success('Pista eliminada');
       setTracks(tracks.filter(t => t.id !== trackId));
     } catch (error) {
@@ -57,13 +57,13 @@ const MusicLibrary = () => {
       return;
     }
     try {
-      const response = await axios.post('/api/v1/music/playlists', {
+      const data = await httpClient.post('/api/v1/music/playlists', {
         name: newPlaylistName,
         description: '',
         is_shared: false,
       });
       toast.success('Playlist creada');
-      setPlaylists([...playlists, response.data]);
+      setPlaylists([...playlists, data]);
       setNewPlaylistName('');
       setShowNewPlaylistModal(false);
     } catch (error) {
@@ -79,7 +79,7 @@ const MusicLibrary = () => {
     }
     try {
       for (const trackId of selectedTracks) {
-        await axios.post(`/api/v1/music/playlists/${playlistId}/tracks`, {
+        await httpClient.post(`/api/v1/music/playlists/${playlistId}/tracks`, {
           track_id: trackId,
         });
       }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axios from '../api/axiosInstance';
+import httpClient from '../../lib/httpClient';
 import { useTauri } from '../../hooks/useTauri';
 
 const MusicPlayer = () => {
@@ -24,11 +24,11 @@ const MusicPlayer = () => {
 
   const fetchPlaylist = async () => {
     try {
-      const response = await axios.get('/api/v1/music/tracks');
-      if (response.data && response.data.length > 0) {
-        setPlaylist(response.data);
+      const data = await httpClient.get('/api/v1/music/tracks');
+      if (data && data.length > 0) {
+        setPlaylist(data);
         if (!currentTrack) {
-          setCurrentTrack(response.data[0]);
+          setCurrentTrack(data[0]);
           setCurrentIndex(0);
         }
       }
@@ -103,8 +103,8 @@ const MusicPlayer = () => {
     if (!currentTrack) return;
     const fetchStreamUrl = async () => {
       try {
-        const response = await axios.get(`/api/v1/music/tracks/${currentTrack.id}/stream`);
-        const { stream_url } = response.data;
+        const data = await httpClient.get(`/api/v1/music/tracks/${currentTrack.id}/stream`);
+        const { stream_url } = data;
         if (audioRef.current) {
           audioRef.current.src = stream_url;
           if (isPlaying) {
