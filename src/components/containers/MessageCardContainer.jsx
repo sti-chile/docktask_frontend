@@ -22,10 +22,7 @@ const MessageCardContainer = ({
   }, [mensaje.estado]);
 
   const handleEstadoChange = (id, nuevoEstado) => {
-    console.log("MessageCardContainer nuevoEstado", nuevoEstado);
-    console.log("MessageCardContainer mensaje.id", id);
-    console.log("MessageCardContainer onEstadoChange", onEstadoChange);
-    setLocalEstado(id, nuevoEstado);
+    setLocalEstado(nuevoEstado);
     onEstadoChange(id, nuevoEstado);
   };
 

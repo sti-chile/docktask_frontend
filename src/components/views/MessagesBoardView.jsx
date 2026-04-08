@@ -18,9 +18,11 @@ const MessagesBoardView = ({
   onDragOver,
   onDrop
 }) => {
-  const estados = ['pendiente', 'en_progreso', 'completado', 'archivado'];
+  const estados = ['urgente', 'pendiente', 'en_progreso', 'completado', 'archivado'];
   const getEstadoTitulo = (estado) => {
     switch (estado) {
+      case 'urgente':
+        return 'Urgente';
       case 'pendiente':
         return 'Pendiente';
       case 'en_progreso':
@@ -37,7 +39,7 @@ const MessagesBoardView = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -48,7 +50,7 @@ const MessagesBoardView = ({
         <p className="text-red-500 text-lg mb-4">Error al cargar los mensajes</p>
         <button
           onClick={onRetry}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors duration-200"
         >
           Reintentar
         </button>
@@ -62,7 +64,7 @@ const MessagesBoardView = ({
         <h1 className="text-3xl font-bold text-gray-800">Mis Mensajes</h1>
         <button
           onClick={onCreateClick}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200 flex items-center"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors duration-200 flex items-center"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           Crear Mensaje
@@ -74,7 +76,7 @@ const MessagesBoardView = ({
           <p className="text-gray-500 text-lg mb-4">No tienes mensajes creados</p>
           <button
             onClick={onCreateClick}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors duration-200"
           >
             Crear mi primer mensaje
           </button>

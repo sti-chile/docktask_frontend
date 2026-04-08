@@ -38,7 +38,7 @@ const MessagesView = ({
         <p className="text-red-500 text-lg mb-4">Error al cargar los mensajes</p>
         <button
           onClick={onRetry}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors duration-200"
         >
           Reintentar
         </button>
@@ -52,7 +52,7 @@ const MessagesView = ({
         <h1 className="text-3xl font-bold text-gray-800">Mis Mensajes</h1>
         <button
           onClick={onCreateClick}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200 flex items-center"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors duration-200 flex items-center"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           Crear Mensaje
@@ -64,7 +64,7 @@ const MessagesView = ({
           <p className="text-gray-500 text-lg mb-4">No tienes mensajes creados</p>
           <button
             onClick={onCreateClick}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors duration-200"
           >
             Crear mi primer mensaje
           </button>
