@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import httpClient from '../../lib/httpClient';
+import { httpClient } from '../../lib/httpClient';
 
 const UploadPage = () => {
   const [file, setFile] = useState(null);
@@ -62,7 +62,7 @@ const UploadPage = () => {
         mime_type: file.type,
       });
 
-      const { upload_url, track_id } = response.data;
+      const { upload_url, track_id } = response;
       setTrackId(track_id);
 
       // 2. Subir directamente a S3 usando fetch
@@ -130,7 +130,7 @@ const UploadPage = () => {
       <div className="mb-8">
         <button
           onClick={() => navigate('/music/library')}
-          className="text-blue-600 hover:text-blue-800 flex items-center"
+          className="text-primary hover:text-primary/80 flex items-center"
         >
           <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
@@ -145,7 +145,7 @@ const UploadPage = () => {
 
       {/* Área de drag‑and‑drop */}
       <div
-        className={`border-2 border-dashed rounded-lg p-8 text-center ${file ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`}
+        className={`border-2 border-dashed rounded-lg p-8 text-center ${file ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-gray-400'}`}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current.click()}
@@ -165,7 +165,7 @@ const UploadPage = () => {
             <span className="font-medium">{file.name}</span>
           ) : (
             <>
-              Arrastra un archivo de audio aquí o <span className="text-blue-600">haz clic para seleccionar</span>
+              Arrastra un archivo de audio aquí o <span className="text-primary">haz clic para seleccionar</span>
             </>
           )}
         </p>
@@ -226,7 +226,7 @@ const UploadPage = () => {
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-primary h-2 rounded-full transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
@@ -248,7 +248,7 @@ const UploadPage = () => {
             <button
               onClick={handleUpload}
               disabled={isUploading || !title.trim()}
-              className={`px-6 py-2 rounded-lg font-medium ${isUploading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+              className={`px-6 py-2 rounded-lg font-medium ${isUploading ? 'bg-primary/60 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'} text-primary-foreground`}
             >
               {isUploading ? 'Subiendo...' : 'Subir canción'}
             </button>
