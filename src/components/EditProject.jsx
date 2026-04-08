@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { buildAxios } from "@/api/axiosInstance";
+import { createHttpClient, httpClient } from "@/lib/httpClient";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -9,11 +9,11 @@ function EditProject({ token }) {
   const [project, setProject] = useState({});
 
   useEffect(() => {
-    const api = buildAxios(token);
+    const api = token ? createHttpClient(token) : httpClient;
     api
       .get(`/api/proyectos`)
-      .then((res) => {
-        const found = res.data.find((p) => p.id === parseInt(id));
+      .then((data) => {
+        const found = data.find((p) => p.id === parseInt(id));
         if (found) setProject(found);
       })
       .catch(() => toast.error("Error al cargar el proyecto"));
@@ -21,7 +21,7 @@ function EditProject({ token }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const api = buildAxios(token);
+    const api = token ? createHttpClient(token) : httpClient;
     api
       .put(`/api/proyectos/${id}`, { ...project })
       .then(() => {
