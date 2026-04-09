@@ -10,7 +10,7 @@ function EditMessage({ token }) {
   useEffect(() => {
     const api = token ? createHttpClient(token) : httpClient;
     api
-      .get(`/api/mis-mensajes`)
+      .get(`/api/v1/mis-mensajes`)
       .then((data) => {
         const msg = data.find((m) => m.id === parseInt(id));
         if (msg) setMensaje(msg.mensaje);
@@ -23,7 +23,7 @@ function EditMessage({ token }) {
     const api = token ? createHttpClient(token) : httpClient;
     api
       .put(
-        `/api/mensajes/${id}`,
+        `/api/v1/mensajes/${id}`,
         {
           mensaje,
         }

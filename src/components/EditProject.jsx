@@ -11,7 +11,7 @@ function EditProject({ token }) {
   useEffect(() => {
     const api = token ? createHttpClient(token) : httpClient;
     api
-      .get(`/api/proyectos`)
+      .get(`/api/v1/proyectos`)
       .then((data) => {
         const found = data.find((p) => p.id === parseInt(id));
         if (found) setProject(found);
@@ -23,7 +23,7 @@ function EditProject({ token }) {
     e.preventDefault();
     const api = token ? createHttpClient(token) : httpClient;
     api
-      .put(`/api/proyectos/${id}`, { ...project })
+      .put(`/api/v1/proyectos/${id}`, { ...project })
       .then(() => {
         toast.success("Proyecto actualizado exitosamente");
         navigate("/mis-proyectos");

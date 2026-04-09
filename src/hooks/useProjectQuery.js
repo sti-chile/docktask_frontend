@@ -11,7 +11,7 @@ export const useProjectQuery = (token) => {
     queryKey: ['proyectos'],
     queryFn: async () => {
       try {
-        const proyectos = await http.get('/api/proyectos');
+        const proyectos = await http.get('/api/v1/proyectos');
         const user = jwtDecode(token);
         const owner_id = user.sub;
         return (proyectos || []).filter(proyecto => String(proyecto.owner_id) === String(owner_id));
@@ -29,7 +29,7 @@ export const useProjectQuery = (token) => {
 
   const crearProyecto = useMutation({
     mutationFn: async (nuevoProyecto) => {
-      return http.post('/api/proyectos', nuevoProyecto);
+      return http.post('/api/v1/proyectos', nuevoProyecto);
     },
     onSuccess: () => {
       qc.invalidateQueries(['proyectos']);
@@ -40,7 +40,7 @@ export const useProjectQuery = (token) => {
 
   const actualizarProyecto = useMutation({
     mutationFn: async ({ id, ...datos }) => {
-      return http.put(`/api/proyectos/${id}`, datos);
+      return http.put(`/api/v1/proyectos/${id}`, datos);
     },
     onSuccess: () => {
       qc.invalidateQueries(['proyectos']);
@@ -51,7 +51,7 @@ export const useProjectQuery = (token) => {
 
   const eliminarProyecto = useMutation({
     mutationFn: async (id) => {
-      return http.delete(`/api/proyectos/${id}`);
+      return http.delete(`/api/v1/proyectos/${id}`);
     },
     onSuccess: () => {
       qc.invalidateQueries(['proyectos']);

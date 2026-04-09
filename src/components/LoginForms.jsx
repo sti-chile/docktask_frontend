@@ -40,7 +40,7 @@ const LoginForm = ({ onLogin }) => {
     setProgress(0);
 
     try {
-      const response = await httpClient.post('/api/login', {
+      const response = await httpClient.post('/api/v1/login', {
         username,
         password
       });

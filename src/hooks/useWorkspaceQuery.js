@@ -10,7 +10,7 @@ export const useWorkspaceQuery = (token) => {
     queryKey: ['workspaces'],
     queryFn: async () => {
       try {
-        const data = await http.get('/api/workspaces/');
+        const data = await http.get('/api/v1/workspaces/');
         return data || [];
       } catch (error) {
         console.error('Error al cargar workspaces:', error);
@@ -26,7 +26,7 @@ export const useWorkspaceQuery = (token) => {
 
   const crearWorkspace = useMutation({
     mutationFn: async (datos) => {
-      return http.post('/api/workspaces/', datos);
+      return http.post('/api/v1/workspaces/', datos);
     },
     onSuccess: () => {
       qc.invalidateQueries(['workspaces']);
@@ -37,7 +37,7 @@ export const useWorkspaceQuery = (token) => {
 
   const actualizarWorkspace = useMutation({
     mutationFn: async ({ id, ...datos }) => {
-      return http.put(`/api/workspaces/${id}`, datos);
+      return http.put(`/api/v1/workspaces/${id}`, datos);
     },
     onSuccess: () => {
       qc.invalidateQueries(['workspaces']);
@@ -48,7 +48,7 @@ export const useWorkspaceQuery = (token) => {
 
   const eliminarWorkspace = useMutation({
     mutationFn: async (id) => {
-      return http.delete(`/api/workspaces/${id}`);
+      return http.delete(`/api/v1/workspaces/${id}`);
     },
     onSuccess: () => {
       qc.invalidateQueries(['workspaces']);

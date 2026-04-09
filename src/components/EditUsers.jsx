@@ -31,7 +31,7 @@ function EditUsers({ token }) {
     setLoading(true);
     try {
       const api = token ? createHttpClient(token) : httpClient;
-      const data = await api.get("/admin/api/usuarios");
+      const data = await api.get("/api/v1/admin/usuarios");
       setUsuarios(data);
     } catch (err) {
       setError("Error al obtener usuarios");
@@ -46,7 +46,7 @@ function EditUsers({ token }) {
     setLoading(true);
     try {
       const api = token ? createHttpClient(token) : httpClient;
-      const data = await api.get(`/admin/api/usuarios/${userId}`);
+      const data = await api.get(`/api/v1/admin/usuarios/${userId}`);
       setEditingUser(data);
     } catch (err) {
       setError("Error al obtener usuario");
@@ -76,7 +76,7 @@ function EditUsers({ token }) {
     e.preventDefault();
     try {
       const api = token ? createHttpClient(token) : httpClient;
-      await api.post('/admin/api/usuarios', newUser);
+      await api.post('/api/v1/admin/usuarios', newUser);
       
       toast.success('Usuario creado exitosamente', {
         position: "top-right",
@@ -106,7 +106,7 @@ function EditUsers({ token }) {
     e.preventDefault();
     try {
       const api = token ? createHttpClient(token) : httpClient;
-      await api.put(`/admin/api/usuarios/${id}`, editingUser);
+      await api.put(`/api/v1/admin/usuarios/${id}`, editingUser);
       
       toast.success('Usuario actualizado exitosamente');
       navigate('/admin');
@@ -123,7 +123,7 @@ function EditUsers({ token }) {
     try {
       setLoading(true);
       const api = token ? createHttpClient(token) : httpClient;
-      await api.delete(`/admin/api/usuarios/${userId}`);
+      await api.delete(`/api/v1/admin/usuarios/${userId}`);
       
       toast.success('Usuario eliminado exitosamente');
       obtenerUsuarios();

@@ -22,7 +22,7 @@ const GanttBoard = ({ proyectoId }) => {
     const api = createHttpClient(token);
 
     api
-      .get(`/api/proyectos/${proyectoId}/mensajes`, { signal: controller.signal })
+      .get(`/api/v1/proyectos/${proyectoId}/mensajes`, { signal: controller.signal })
       .then((mensajes) => {
         const tareasValidas = mensajes
           .filter((m) => m.start_date && m.expiration_date)

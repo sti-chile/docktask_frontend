@@ -9,7 +9,7 @@ export const useMensajesQuery = (token) => {
   const { data: mensajes = [], isLoading, error, refetch: cargarMensajes } = useQuery({
     queryKey: ['mensajes'],
     queryFn: async () => {
-      const data = await http.get('/api/mis-mensajes');
+      const data = await http.get('/api/v1/mis-mensajes');
       return Array.isArray(data) ? data : [];
     },
     onError: (error) => toast.error(error.message || 'Error al cargar los mensajes'),
@@ -23,7 +23,7 @@ export const useMensajesQuery = (token) => {
         proyecto_id: nuevoMensaje.project_id ? parseInt(nuevoMensaje.project_id) : null
       };
       delete mensajeData.project_id;
-      return http.post('/api/mensajes', mensajeData);
+      return http.post('/api/v1/mensajes', mensajeData);
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
@@ -34,7 +34,7 @@ export const useMensajesQuery = (token) => {
 
   const cambiarEstado = useMutation({
     mutationFn: async ({ id, estado }) => {
-      return http.put(`/api/mensajes/${id}`, { estado });
+      return http.put(`/api/v1/mensajes/${id}`, { estado });
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
@@ -45,7 +45,7 @@ export const useMensajesQuery = (token) => {
 
   const eliminarMensaje = useMutation({
     mutationFn: async (id) => {
-      return http.delete(`/api/mensajes/${id}`);
+      return http.delete(`/api/v1/mensajes/${id}`);
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
@@ -56,7 +56,7 @@ export const useMensajesQuery = (token) => {
 
   const duplicarMensaje = useMutation({
     mutationFn: async (id) => {
-      return http.post(`/api/mis-mensajes/${id}/duplicate`);
+      return http.post(`/api/v1/mis-mensajes/${id}/duplicate`);
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
@@ -74,7 +74,7 @@ export const useMensajesQuery = (token) => {
         throw new Error('Formato de fecha inválido. Debe ser YYYY-MM-DDTHH:mm');
       }
 
-      return http.put(`/api/mensajes/${id}`, { expiration_date });
+      return http.put(`/api/v1/mensajes/${id}`, { expiration_date });
     },
     onSuccess: () => {
       qc.invalidateQueries(['mensajes']);
