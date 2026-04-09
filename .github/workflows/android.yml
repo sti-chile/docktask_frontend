@@ -1,0 +1,184 @@
+name: Build Android
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'src-tauri/**'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'src-tauri/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+env:
+  NDK_VERSION: "27.0.12077973"
+  ANDROID_API: "34"
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── JDK 17 ────────────────────────────────────────────────────
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # ── Android SDK + NDK ─────────────────────────────────────────
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK & Build Tools
+        run: |
+          sdkmanager "ndk;${{ env.NDK_VERSION }}" \
+                     "build-tools;${{ env.ANDROID_API }}.0.0" \
+                     "platforms;android-${{ env.ANDROID_API }}"
+          echo "NDK_HOME=$ANDROID_HOME/ndk/${{ env.NDK_VERSION }}" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/${{ env.NDK_VERSION }}" >> $GITHUB_ENV
+          echo "BUILD_TOOLS=$ANDROID_HOME/build-tools/${{ env.ANDROID_API }}.0.0" >> $GITHUB_ENV
+
+      # ── Rust ──────────────────────────────────────────────────────
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: 'src-tauri -> target'
+
+      - name: Add Android Rust targets
+        run: |
+          rustup target add \
+            aarch64-linux-android \
+            armv7-linux-androideabi \
+            x86_64-linux-android \
+            i686-linux-android
+
+      # ── Node / npm ────────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Build frontend ────────────────────────────────────────────
+      - name: Build frontend
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      # ── Tauri Android init ─────────────────────────────────────────
+      - name: Tauri Android init
+        run: npm run tauri -- android init
+        env:
+          NDK_HOME: ${{ env.NDK_HOME }}
+          ANDROID_NDK_HOME: ${{ env.NDK_HOME }}
+
+      # ── Build APK (release sin firmar) ────────────────────────────
+      - name: Build Android APK
+        run: npm run tauri:build:android -- --apk
+        env:
+          NDK_HOME: ${{ env.NDK_HOME }}
+          ANDROID_NDK_HOME: ${{ env.NDK_HOME }}
+
+      # ── Obtener versión desde tauri.conf.json ─────────────────────
+      - name: Get app version
+        id: version
+        run: |
+          VERSION=$(python3 -c "import json; print(json.load(open('src-tauri/tauri.conf.json'))['version'])")
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      # ── Firmar APK (solo en push a main o workflow_dispatch) ───────
+      - name: Setup keystore
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > /tmp/docktask.keystore
+          chmod 600 /tmp/docktask.keystore
+          echo "KEYSTORE_PATH=/tmp/docktask.keystore" >> $GITHUB_ENV
+
+      - name: Sign APK
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          trap 'rm -f /tmp/docktask.keystore' EXIT
+
+          UNSIGNED=$(find src-tauri/gen/android -type f \( -name "*unsigned*.apk" -o -name "*release*.apk" \) 2>/dev/null | head -1)
+
+          if [ -z "$UNSIGNED" ] || [ ! -f "$UNSIGNED" ]; then
+            echo "❌ No se encontró el APK sin firmar en src-tauri/gen/android"
+            find src-tauri/gen/android -name "*.apk" 2>/dev/null || echo "(ningún .apk encontrado)"
+            exit 1
+          fi
+
+          echo "APK sin firmar: $UNSIGNED"
+
+          # Zipalign (alinear antes de firmar)
+          $BUILD_TOOLS/zipalign -v -p 4 "$UNSIGNED" /tmp/docktask-aligned.apk
+
+          # Firmar con apksigner
+          # Nota: PKCS12/JKS keystores requieren que key-pass = store-pass
+          $BUILD_TOOLS/apksigner sign \
+            --ks "$KEYSTORE_PATH" \
+            --ks-key-alias "${{ secrets.ANDROID_KEY_ALIAS }}" \
+            --ks-pass "pass:${{ secrets.ANDROID_STORE_PASSWORD }}" \
+            --key-pass "pass:${{ secrets.ANDROID_STORE_PASSWORD }}" \
+            --out /tmp/docktask-signed.apk \
+            /tmp/docktask-aligned.apk
+
+          # Verificar firma - si falla, el step falla
+          $BUILD_TOOLS/apksigner verify --verbose /tmp/docktask-signed.apk
+          echo "✅ APK firmado y verificado correctamente"
+
+      # ── Subir APK firmado (push/dispatch) ─────────────────────────
+      - name: Upload signed APK
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: docktask-v${{ steps.version.outputs.version }}-android
+          path: /tmp/docktask-signed.apk
+          retention-days: 30
+
+      # ── Subir APK sin firmar (solo PRs) ───────────────────────────
+      - name: Find and upload unsigned APK (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          APK=$(find src-tauri/gen/android -type f -name "*.apk" 2>/dev/null | head -1)
+          if [ -z "$APK" ] || [ ! -f "$APK" ]; then
+            echo "❌ No se encontró ningún APK en src-tauri/gen/android" | tee -a "$GITHUB_STEP_SUMMARY"
+            find src-tauri/gen/android 2>/dev/null || echo "(directorio no existe)"
+            exit 1
+          fi
+          echo "APK encontrado: $APK"
+          echo "apk_path=${APK}" >> $GITHUB_ENV
+
+      - name: Upload unsigned APK (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: docktask-v${{ steps.version.outputs.version }}-android-unsigned-pr
+          path: ${{ env.apk_path }}
+          retention-days: 7
+
+      # ── Resumen ───────────────────────────────────────────────────
+      - name: Summary
+        run: |
+          echo "### ✅ Build Android completado" >> $GITHUB_STEP_SUMMARY
+          echo "- **Versión:** v${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Firma:** ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 'keystore de release' || 'sin firmar (PR)' }}" >> $GITHUB_STEP_SUMMARY

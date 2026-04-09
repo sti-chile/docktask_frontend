@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { buildAxios } from '../api/axiosInstance';
+import React, { useState, useEffect, useRef } from 'react';
+import { httpClient } from '@/lib/httpClient';
 import { UserPlusIcon, UserIcon, LockClosedIcon, EnvelopeIcon, PhoneIcon,
   UserCircleIcon, IdentificationIcon
  } from '@heroicons/react/24/outline';
@@ -14,23 +14,16 @@ const RegisterForm = () => {
   const [phone, setPhone] = useState('');
   const [mensaje, setMensaje] = useState('');
   const navigate = useNavigate();
+  const redirectTimer = useRef(null);
 
-  // Limpiar campos al montar el componente
   useEffect(() => {
-    setUsername('');
-    setPassword('');
-    setNombre('');
-    setApellido('');
-    setEmail('');
-    setPhone('');
-    setMensaje('');
+    return () => clearTimeout(redirectTimer.current);
   }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try { 
-      const axios = buildAxios();
-      const res = await axios.post('/api/register', {
+      await httpClient.post('/api/v1/register', {
         username,
         password,
         nombre,
@@ -38,7 +31,6 @@ const RegisterForm = () => {
         email,
         phone
       });
-      console.log(res.data);
       setMensaje('Usuario registrado exitosamente ✅');
       // Limpiar campos después de un registro exitoso
       setUsername('');
@@ -47,13 +39,11 @@ const RegisterForm = () => {
       setApellido('');
       setEmail('');
       setPhone('');
-      // Redirigir al login después de 2 segundos
-      setTimeout(() => {
+      redirectTimer.current = setTimeout(() => {
         navigate('/');
       }, 2000);
     } catch (err) {
-      console.log(err);
-      if (err.response?.status === 409) {
+      if (err.status === 409) {
         setMensaje('El usuario ya existe ❌');
       } else {
         setMensaje('Error al registrar usuario ❌');

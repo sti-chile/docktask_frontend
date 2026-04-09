@@ -19,13 +19,11 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import TourTutorial from '@/components/TourTutorial';
 
-const Dashboard = ({ token, onVerTodosMensajes }) => {
+const Dashboard = ({ token }) => {
   const navigate = useNavigate();
   const { mensajes, loading } = useMensajesQuery(token);
 
-  useEffect(() => {
-    
-  }, []);
+  const onVerTodosMensajes = () => navigate('/mis-mensajes');
 
   if (loading) {
     return (

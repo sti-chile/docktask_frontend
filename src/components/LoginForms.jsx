@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { UserIcon, LockClosedIcon } from '@heroicons/react/24/outline';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { buildAxios } from '../api/axiosInstance';
+import { httpClient } from '@/lib/httpClient';
 
 const LoginForm = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -10,7 +10,6 @@ const LoginForm = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Limpiar campos al montar el componente
   useEffect(() => {
@@ -41,15 +40,12 @@ const LoginForm = ({ onLogin }) => {
     setProgress(0);
 
     try {
-      console.log('Iniciando login...');
-      const axios = buildAxios();
-      const response = await axios.post('/api/login', {
+      const response = await httpClient.post('/api/v1/login', {
         username,
         password
       });
 
-      console.log('Respuesta del servidor:', response.data);
-      const { access_token: token, usuario: userData } = response.data;
+      const { access_token: token, usuario: userData } = response;
       
       if (!token || !userData) {
         throw new Error('Respuesta del servidor inválida');
@@ -64,8 +60,6 @@ const LoginForm = ({ onLogin }) => {
         apellido: userData.apellido
       };
       
-      console.log('Usuario creado:', user);
-
       // Guardar en localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
@@ -84,12 +78,10 @@ const LoginForm = ({ onLogin }) => {
 
       // Redirigir según el rol
       const redirectPath = user.rol === 'admin' ? '/admin' : '/mis-mensajes';
-      console.log('Redirigiendo a:', redirectPath);
       navigate(redirectPath);
 
     } catch (error) {
-      console.error('Error en login:', error);
-      const errorMessage = error.response?.data?.message || 'Login fallido. Revisa tus credenciales.';
+      const errorMessage = error.message || 'Login fallido. Revisa tus credenciales.';
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -138,7 +130,9 @@ const LoginForm = ({ onLogin }) => {
       )}
 
       {/* Formulario de login */}
+      <div className="w-full max-w-md"> {/* Wrapper para centrar y limitar ancho */}
       <form onSubmit={handleLogin} className="bg-white rounded-lg shadow-md p-6">
+
         <div className="space-y-4">
           {/* Input de usuario */}
           <div className="relative">
@@ -176,7 +170,7 @@ const LoginForm = ({ onLogin }) => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <LockClosedIcon className="h-5 w-5" />
             {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
@@ -193,6 +187,7 @@ const LoginForm = ({ onLogin }) => {
           </p>
         </div>
       </form>
+      </div> {/* Fin del wrapper */}
     </div>
   );
 };

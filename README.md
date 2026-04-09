@@ -85,4 +85,4 @@ Contacta a Javier Ferreira para soporte o preguntas.
 MIT
 
 Desarrollado con ❤️ por el equipo DockTask
-Backend API | Frontend
+Backend API | Frontend 2026

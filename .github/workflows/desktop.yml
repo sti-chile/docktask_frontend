@@ -1,0 +1,122 @@
+name: Build Desktop
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'src-tauri/**'
+      - 'package.json'
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Crear release (tagged)'
+        required: false
+        default: 'false'
+
+jobs:
+  build-desktop:
+    name: Build — ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            runner: ubuntu-22.04
+            args: '--target x86_64-unknown-linux-gnu'
+            artifact: '*.deb *.AppImage'
+          - platform: windows
+            runner: windows-latest
+            args: '--target x86_64-pc-windows-msvc'
+            artifact: '*.exe *.msi'
+          - platform: macos
+            runner: macos-latest
+            args: '--target universal-apple-darwin'
+            artifact: '*.dmg *.app'
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Dependencias Linux ─────────────────────────────────────────
+      - name: Install Linux deps
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libssl-dev \
+            pkg-config
+
+      # ── Rust ──────────────────────────────────────────────────────
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: 'src-tauri -> target'
+
+      # ── Node / npm ────────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Build desktop ─────────────────────────────────────────────
+      - name: Build Tauri (desktop)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          args: ${{ matrix.args }}
+          tagName: ${{ github.event.inputs.release == 'true' && 'desktop-v__VERSION__' || '' }}
+          releaseName: ${{ github.event.inputs.release == 'true' && 'DockTask Desktop v__VERSION__' || '' }}
+          releaseBody: |
+            ## DockTask Desktop
+
+            Instaladores disponibles para Windows, macOS y Linux.
+
+            ### Instalación
+            - **Windows:** descarga el `.msi` o el `.exe`
+            - **macOS:** descarga el `.dmg`
+            - **Linux:** descarga el `.AppImage` (universal) o `.deb` (Debian/Ubuntu)
+          releaseDraft: ${{ github.event.inputs.release == 'true' }}
+          prerelease: false
+
+      # ── Subir artifacts ───────────────────────────────────────────
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docktask-desktop-${{ matrix.platform }}-${{ github.sha }}
+          path: |
+            src-tauri/target/**/release/bundle/**/*.deb
+            src-tauri/target/**/release/bundle/**/*.AppImage
+            src-tauri/target/**/release/bundle/**/*.exe
+            src-tauri/target/**/release/bundle/**/*.msi
+            src-tauri/target/**/release/bundle/**/*.dmg
+          if-no-files-found: warn
+          retention-days: 14
+
+      # ── Resumen ───────────────────────────────────────────────────
+      - name: Summary
+        shell: bash
+        run: |
+          echo "### ✅ Build Desktop — ${{ matrix.platform }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Release: ${{ github.event.inputs.release == 'true' && 'Sí' || 'No (artifact)' }}" >> $GITHUB_STEP_SUMMARY

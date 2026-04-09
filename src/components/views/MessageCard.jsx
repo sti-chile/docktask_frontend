@@ -70,7 +70,7 @@ const MessageCard = ({
         >
           <CardHeader className="pb-2 border-b flex flex-col sm:flex-row justify-between gap-2">
             <CardTitle className="text-lg font-semibold break-words">{mensaje.nombre}</CardTitle>
-            <div className="flex-wrap w-full max-w-xs sm:w-60">
+            <div className="flex-wrap w-full max-w-xs sm:w-60" onClick={e => e.stopPropagation()}>
               <EstadoSelect
                 estado={estadoActual}
                 onChange={(nuevoEstado) => {
@@ -206,7 +206,7 @@ const MessageCard = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => onDuplicar(mensaje)}
+              onClick={(e) => { e.stopPropagation(); onDuplicar(mensaje); }}
               className="h-9 w-9 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
             >
               <DocumentDuplicateIcon className="h-4 w-4" />
@@ -214,7 +214,7 @@ const MessageCard = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => onDelete(mensaje.id)}
+              onClick={(e) => { e.stopPropagation(); onDelete(mensaje.id); }}
               className="h-9 w-9 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
             >
               <TrashIcon className="h-4 w-4" />
@@ -224,7 +224,7 @@ const MessageCard = ({
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
-                onFechaExpiracionChange(mensaje.id, new Date());
+                onFechaExpiracionChange(mensaje.id, new Date().toISOString());
               }}
               className="h-9 w-9 text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-200"
             >
@@ -233,7 +233,7 @@ const MessageCard = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate(`/edit/${mensaje.id}`)}
+              onClick={(e) => { e.stopPropagation(); navigate(`/edit/${mensaje.id}`); }}
               className="h-9 w-9 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 border-yellow-200"
             >
               <PencilSquareIcon className="h-4 w-4" />

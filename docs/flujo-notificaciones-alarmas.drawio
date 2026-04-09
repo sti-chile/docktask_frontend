@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-02-26" version="21.0.0">
+  <diagram name="Notificaciones y Alarmas" id="notif-alarms">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TÍTULO -->
+        <mxCell id="title" value="DockTask — Notificaciones y Alarmas (Rust)" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=18;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="250" y="20" width="670" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== FUENTES DE EVENTOS ===================== -->
+        <mxCell id="src-bg" value="Fuentes de eventos" style="swimlane;fillColor=#dae8fc;strokeColor=#6c8ebf;startSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="220" height="300" as="geometry" />
+        </mxCell>
+
+        <mxCell id="src-deadline" value="📅 Deadline tarea&#xa;(end_date próxima)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="130" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="src-assign" value="👤 Asignación&#xa;nueva tarea" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="200" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="src-comment" value="💬 Nuevo comentario&#xa;en tarea propia" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="270" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="src-reminder" value="⏰ Recordatorio&#xa;manual del usuario" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="340" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== SCHEDULER (RUST) ===================== -->
+        <mxCell id="sched-bg" value="Notification Scheduler (Rust Thread)" style="swimlane;fillColor=#f8cecc;strokeColor=#b85450;startSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="80" width="300" height="300" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sched-queue" value="Cola de notificaciones&#xa;(SQLite: pending_notifications)" style="shape=cylinder3;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="330" y="130" width="250" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sched-loop" value="Loop cada 60s:&#xa;¿Hay notif. con fire_at ≤ now()?" style="rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="330" y="230" width="260" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-queue-loop" edge="1" source="sched-queue" target="sched-loop" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Flechas de fuentes al scheduler -->
+        <mxCell id="e-src1" edge="1" source="src-deadline" target="sched-queue" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-src2" edge="1" source="src-assign" target="sched-queue" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-src3" edge="1" source="src-comment" target="sched-queue" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-src4" edge="1" source="src-reminder" target="sched-queue" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== DISPATCH ===================== -->
+        <mxCell id="dispatch-bg" value="Dispatch (Rust → OS)" style="swimlane;fillColor=#d5e8d4;strokeColor=#82b366;startSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="660" y="80" width="250" height="300" as="geometry" />
+        </mxCell>
+
+        <mxCell id="os-notif" value="🔔 Notificación nativa OS&#xa;(Windows/macOS/Linux/iOS/Android)" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="675" y="130" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="os-cal" value="📅 Evento en Calendario OS&#xa;(si el usuario lo activa)" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="675" y="220" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="os-inapp" value="🟡 In-app toast&#xa;(React Toastify)" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="675" y="310" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Flechas del scheduler al dispatch -->
+        <mxCell id="e-sched-dispatch" value="fire!" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;fontStyle=1;" edge="1" source="sched-loop" target="dispatch-bg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== CONFIGURACIÓN DE ALERTAS ===================== -->
+        <mxCell id="config-bg" value="Configuración de alertas (por tarea)" style="swimlane;fillColor=#e1d5e7;strokeColor=#9673a6;startSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="440" width="820" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cfg1" value="⏰ X horas/días antes del deadline&#xa;(configurable: 1h, 24h, 3 días)" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="100" y="490" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cfg2" value="🔁 Recurrencia&#xa;(diaria, semanal, custom)" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="490" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cfg3" value="🔕 Silencio nocturno&#xa;(23:00 – 08:00)" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="555" y="490" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cfg4" value="🎯 Prioridad&#xa;Alta → notif inmediata&#xa;Baja → digest diario" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="760" y="490" width="110" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Referencia al código Rust -->
+        <mxCell id="rust-code" value="// Rust: programar alarma&#xa;schedule_notification(&#xa;  title: &quot;DockTask&quot;,&#xa;  body: &quot;Tarea vence en 1h&quot;,&#xa;  fire_at: deadline - 3600,&#xa;  repeat: None&#xa;);" style="text;html=0;strokeColor=#b85450;fillColor=#fff0f0;fontFamily=Courier New;fontSize=11;align=left;" vertex="1" parent="1">
+          <mxGeometry x="80" y="640" width="350" height="110" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

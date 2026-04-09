@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { buildAxios } from '../api/axiosInstance';
+import { createHttpClient, httpClient } from '@/lib/httpClient';
 
 function EditMessage({ token }) {
   const { id } = useParams();
@@ -9,28 +8,28 @@ function EditMessage({ token }) {
   const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
-    const axios = buildAxios(token);
-    axios
-      .get(`/api/mis-mensajes`)
-      .then((res) => {
-        const msg = res.data.find((m) => m.id === parseInt(id));
+    const api = token ? createHttpClient(token) : httpClient;
+    api
+      .get(`/api/v1/mis-mensajes`)
+      .then((data) => {
+        const msg = data.find((m) => m.id === parseInt(id));
         if (msg) setMensaje(msg.mensaje);
       })
-      .catch((err) => console.error("Error al cargar mensaje", err));
+      .catch(() => {});
   }, [id, token]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const axios = buildAxios(token);
-    axios
+    const api = token ? createHttpClient(token) : httpClient;
+    api
       .put(
-        `/api/mensajes/${id}`,
+        `/api/v1/mensajes/${id}`,
         {
           mensaje,
         }
       )
       .then(() => navigate("/mis-mensajes"))
-      .catch((err) => console.error("Error al actualizar", err));
+      .catch(() => {});
   };
 
   return (
@@ -52,7 +51,7 @@ function EditMessage({ token }) {
         <div className="flex gap-4">
           <button
             type="submit"
-            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200"
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-md transition-colors duration-200"
           >
             Guardar Cambios
           </button>

@@ -10,66 +10,47 @@ const ExpirationInfo = ({ expirationDate, onDateChange }) => {
   );
 
   const handleDateChange = (date) => {
-    console.log('ExpirationInfo - Fecha recibida del DatePicker:', date);
-    console.log('ExpirationInfo - Tipo de fecha:', typeof date);
-    console.log('ExpirationInfo - Es instancia de Date:', date instanceof Date);
-    
     setSelectedDate(date);
-    
-    if (!onDateChange) {
-      console.error('ExpirationInfo - onDateChange no está definido');
-      return;
-    }
+
+    if (!onDateChange) return;
 
     if (!date) {
-      console.log('ExpirationInfo - Enviando fecha null');
       onDateChange(null);
       return;
     }
 
     try {
-      // Formatear la fecha en formato YYYY-MM-DDTHH:mm
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
       const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
-      
-      console.log('ExpirationInfo - Fecha formateada a enviar:', formattedDate);
-      if (formattedDate) {
-        // Asegurarnos de que la fecha se pasa como string
-        const fechaString = String(formattedDate);
-        console.log('ExpirationInfo - Fecha como string:', fechaString);
-        onDateChange(fechaString);
-      } else {
-        console.error('ExpirationInfo - Error al formatear la fecha');
-      }
-    } catch (error) {
-      console.error('ExpirationInfo - Error al formatear fecha:', error);
-      console.error('ExpirationInfo - Fecha que causó el error:', date);
+      onDateChange(formattedDate);
+    } catch {
+      // fecha inválida — no propagar
     }
   };
 
   const getExpirationStatus = (date) => {
     if (!date) return { type: 'info', message: 'Sin fecha de expiración' };
-    
+
     const now = new Date();
     const expiration = new Date(date);
-    
+
     if (isNaN(expiration.getTime())) {
       return { type: 'error', message: 'Fecha inválida' };
     }
 
     const diffDays = Math.ceil((expiration - now) / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) {
       return { type: 'error', message: 'Expirado' };
     } else if (diffDays <= 7) {
       return { type: 'warning', message: `Expira en ${diffDays} días` };
     } else {
-      return { 
-        type: 'success', 
+      return {
+        type: 'success',
         message: `Expira el ${expiration.toLocaleDateString('es-ES', {
           year: 'numeric',
           month: 'long',
@@ -108,7 +89,7 @@ const ExpirationInfo = ({ expirationDate, onDateChange }) => {
           />
         </div>
       </div>
-      
+
       {selectedDate && (
         <div className={`text-sm ${
           status.type === 'error' ? 'text-red-500' :

@@ -1,46 +1,34 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { createHttpClient, httpClient } from "@/lib/httpClient";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify";
 
 function EditProject({ token }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState({});
 
-
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/proyectos`, {
-        headers: { Authorization: `Bearer ${token}` },
+    const api = token ? createHttpClient(token) : httpClient;
+    api
+      .get(`/api/v1/proyectos`)
+      .then((data) => {
+        const found = data.find((p) => p.id === parseInt(id));
+        if (found) setProject(found);
       })
-      .then((res) => {
-        const project = res.data.find((p) => p.id === parseInt(id));
-        if (project) setProject(project);
-      })
-      .catch((err) => console.error("Error al cargar proyecto", err));
+      .catch(() => toast.error("Error al cargar el proyecto"));
   }, [id, token]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios
-      .put(
-        `http://localhost:5000/api/proyectos/${id}`,
-        {
-          ...project,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
+    const api = token ? createHttpClient(token) : httpClient;
+    api
+      .put(`/api/v1/proyectos/${id}`, { ...project })
       .then(() => {
         toast.success("Proyecto actualizado exitosamente");
         navigate("/mis-proyectos");
       })
-      .catch((err) => {
-        toast.error("Error al actualizar el proyecto");
-        console.error("Error al actualizar", err);
-      });
+      .catch(() => toast.error("Error al actualizar el proyecto"));
   };
 
 
@@ -122,7 +110,7 @@ function EditProject({ token }) {
             />
         </div>
         <div className="flex justify-end">
-          <button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">Actualizar</button>
+          <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-md transition-colors duration-200">Actualizar</button>
         </div>
       </form>
     </div>

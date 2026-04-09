@@ -11,6 +11,9 @@ const TourTutorial = () => {
       startTour();
       localStorage.setItem('hasSeenTour', 'true');
     }
+    
+    const timer = setTimeout(() => setShowHelp(true), 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   const startTour = () => {
@@ -95,7 +98,7 @@ return (
     {showHelp && (
       <button
         onClick={startTour}
-        className="fixed bottom-6 right-6 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition duration-300"
+        className="fixed bottom-6 right-6 bg-primary hover:bg-primary/90 text-primary-foreground p-3 rounded-full shadow-lg transition duration-300"
         title="Ayuda"
       >
         <QuestionMarkCircleIcon className="h-6 w-6" />
@@ -103,9 +106,6 @@ return (
     )}
 
     {/* Mostrar el botón sólo después de que el componente esté montado */}
-    <div style={{ display: 'none' }}>
-      {setTimeout(() => setShowHelp(true), 1000)}
-    </div>
   </>
 );
 };
