@@ -126,7 +126,7 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="container mx-auto px-4 py-8 max-w-2xl bg-music-bg text-music-text min-h-screen">
       <div className="mb-8">
         <button
           onClick={() => navigate('/music/library')}
@@ -137,15 +137,15 @@ const UploadPage = () => {
           </svg>
           Volver a biblioteca
         </button>
-        <h1 className="text-3xl font-bold text-gray-800 mt-4">Subir canción</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-music-text mt-4">Subir canción</h1>
+        <p className="text-gray-400 mt-2">
           Sube archivos MP3, M4A, WAV o OGG (hasta 50 MB). La subida es directa a AWS S3.
         </p>
       </div>
 
       {/* Área de drag‑and‑drop */}
       <div
-        className={`border-2 border-dashed rounded-lg p-8 text-center ${file ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-gray-400'}`}
+        className={`border-2 border-dashed rounded-lg p-8 text-center ${file ? 'border-primary bg-primary/10' : 'border-music-border hover:border-primary'}`}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current.click()}
@@ -160,7 +160,7 @@ const UploadPage = () => {
         <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <p className="mt-4 text-gray-700">
+        <p className="mt-4 text-music-text">
           {file ? (
             <span className="font-medium">{file.name}</span>
           ) : (
@@ -169,47 +169,47 @@ const UploadPage = () => {
             </>
           )}
         </p>
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-gray-400 mt-2">
           Máximo 50 MB. Formatos soportados: MP3, M4A, WAV, OGG.
         </p>
       </div>
 
       {/* Metadatos */}
       {file && (
-        <div className="mt-8 bg-white rounded-lg shadow border border-gray-200 p-6">
+        <div className="mt-8 bg-music-card rounded-lg shadow border border-music-border p-6">
           <h3 className="text-lg font-bold mb-4">Información de la pista</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Título *
               </label>
               <input
                 type="text"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                className="w-full border border-music-border rounded-lg px-4 py-2"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Nombre de la canción"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Artista
               </label>
               <input
                 type="text"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                className="w-full border border-music-border rounded-lg px-4 py-2"
                 value={artist}
                 onChange={(e) => setArtist(e.target.value)}
                 placeholder="Nombre del artista"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Álbum
               </label>
               <input
                 type="text"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                className="w-full border border-music-border rounded-lg px-4 py-2"
                 value={album}
                 onChange={(e) => setAlbum(e.target.value)}
                 placeholder="Álbum (opcional)"
@@ -220,17 +220,17 @@ const UploadPage = () => {
           {/* Barra de progreso */}
           {isUploading && (
             <div className="mt-6">
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
+              <div className="flex justify-between text-sm text-gray-400 mb-1">
                 <span>Subiendo...</span>
                 <span>{uploadProgress}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-800 rounded-full h-2">
                 <div
                   className="bg-primary h-2 rounded-full transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-400 mt-2">
                 No cierres esta ventana hasta que la subida se complete.
               </p>
             </div>
@@ -240,7 +240,7 @@ const UploadPage = () => {
           <div className="mt-8 flex justify-end space-x-3">
             <button
               onClick={() => navigate('/music/library')}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
+              className="px-4 py-2 border border-music-border rounded-lg"
               disabled={isUploading}
             >
               Cancelar

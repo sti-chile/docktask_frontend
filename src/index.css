@@ -55,14 +55,14 @@ code {
     --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
-    --primary: 80 45% 35%;
+    --primary: 80 45% 35%; /* verde oliva */
     --primary-foreground: 0 0% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
+    --secondary: 220 100% 34%; /* azul cobalto */
+    --secondary-foreground: 0 0% 98%;
     --muted: 220 14.3% 95.9%;
     --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
+    --accent: 80 45% 90%; /* verde oliva claro para acentos */
+    --accent-foreground: 224 71.4% 4.1%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 20% 98%;
     --border: 220 13% 91%;
@@ -74,6 +74,13 @@ code {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    /* Colores específicos para música */
+    --music-bg: 0 0% 7%;
+    --music-card: 0 0% 12%;
+    --music-border: 0 0% 20%;
+    --music-text: 0 0% 90%;
+    --music-wave: 80 45% 50%;
+    --music-wave-secondary: 220 100% 50%;
   }
   .dark {
     --background: 224 71.4% 4.1%;
@@ -84,8 +91,8 @@ code {
     --popover-foreground: 210 20% 98%;
     --primary: 80 45% 55%;
     --primary-foreground: 0 0% 5%;
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 220 100% 60%; /* azul cobalto más brillante en dark */
+    --secondary-foreground: 0 0% 5%;
     --muted: 215 27.9% 16.9%;
     --muted-foreground: 217.9 10.6% 64.9%;
     --accent: 215 27.9% 16.9%;
@@ -100,6 +107,13 @@ code {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    /* Colores música en dark (iguales pero más oscuros) */
+    --music-bg: 0 0% 5%;
+    --music-card: 0 0% 10%;
+    --music-border: 0 0% 18%;
+    --music-text: 0 0% 95%;
+    --music-wave: 80 45% 60%;
+    --music-wave-secondary: 220 100% 60%;
   }
 }
 
