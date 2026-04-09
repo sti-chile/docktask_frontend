@@ -23,7 +23,7 @@ const RegisterForm = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try { 
-      await httpClient.post('/api/register', {
+      await httpClient.post('/api/v1/register', {
         username,
         password,
         nombre,
