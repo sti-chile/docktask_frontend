@@ -52,6 +52,15 @@ export default {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			/* Colores personalizados para música */
+  			music: {
+  				bg: 'hsl(var(--music-bg))',
+  				card: 'hsl(var(--music-card))',
+  				border: 'hsl(var(--music-border))',
+  				text: 'hsl(var(--music-text))',
+  				wave: 'hsl(var(--music-wave))',
+  				waveSecondary: 'hsl(var(--music-wave-secondary))'
   			}
   		}
   	}

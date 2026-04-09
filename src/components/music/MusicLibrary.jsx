@@ -105,9 +105,9 @@ const MusicLibrary = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-music-bg text-music-text min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Biblioteca de Música</h1>
+        <h1 className="text-3xl font-bold text-music-text">Biblioteca de Música</h1>
         <div className="space-x-3">
           <button
             onClick={() => navigate('/music/upload')}
@@ -117,7 +117,7 @@ const MusicLibrary = () => {
           </button>
           <button
             onClick={() => setShowNewPlaylistModal(true)}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium"
+            className="px-4 py-2 bg-secondary hover:bg-secondary/90 text-white rounded-lg font-medium"
           >
             Nueva playlist
           </button>
@@ -127,11 +127,11 @@ const MusicLibrary = () => {
       {/* Modal nueva playlist */}
       {showNewPlaylistModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-music-card border border-music-border rounded-lg p-6 w-full max-w-md text-music-text">
             <h3 className="text-xl font-bold mb-4">Crear playlist</h3>
             <input
               type="text"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4"
+              className="w-full border border-music-border bg-music-bg text-music-text rounded-lg px-4 py-2 mb-4"
               placeholder="Nombre de la playlist"
               value={newPlaylistName}
               onChange={(e) => setNewPlaylistName(e.target.value)}
@@ -139,7 +139,7 @@ const MusicLibrary = () => {
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowNewPlaylistModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg"
+                className="px-4 py-2 border border-music-border bg-music-bg text-music-text rounded-lg"
               >
                 Cancelar
               </button>
@@ -188,12 +188,12 @@ const MusicLibrary = () => {
           <p className="mt-4 text-gray-600">Cargando pistas...</p>
         </div>
       ) : tracks.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
+        <div className="text-center py-12 bg-music-card rounded-lg">
           <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
           </svg>
-          <h3 className="mt-4 text-lg font-medium text-gray-900">Sin pistas de música</h3>
-          <p className="mt-1 text-gray-500">Sube tu primera canción en formato MP3.</p>
+          <h3 className="mt-4 text-lg font-medium text-music-text">Sin pistas de música</h3>
+          <p className="mt-1 text-gray-400">Sube tu primera canción en formato MP3.</p>
           <button
             onClick={() => navigate('/music/upload')}
             className="mt-6 px-4 py-2 bg-primary text-primary-foreground rounded-lg"
@@ -206,14 +206,14 @@ const MusicLibrary = () => {
           {tracks.map(track => (
             <div
               key={track.id}
-              className={`bg-white rounded-lg shadow border ${selectedTracks.includes(track.id) ? 'border-primary ring-2 ring-primary/30' : 'border-gray-200'}`}
+              className={`bg-music-card rounded-lg shadow border ${selectedTracks.includes(track.id) ? 'border-primary ring-2 ring-primary/30' : 'border-music-border'}`}
             >
               <div className="p-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="font-bold text-gray-800 truncate">{track.title}</h4>
-                    <p className="text-gray-600 text-sm">{track.artist || 'Artista desconocido'}</p>
-                    <p className="text-gray-500 text-sm">{track.album || 'Álbum desconocido'}</p>
+                    <h4 className="font-bold text-music-text truncate">{track.title}</h4>
+                    <p className="text-gray-400 text-sm">{track.artist || 'Artista desconocido'}</p>
+                    <p className="text-gray-400 text-sm">{track.album || 'Álbum desconocido'}</p>
                   </div>
                   <input
                     type="checkbox"
