@@ -32,6 +32,8 @@ import MusicPlayer from './components/music/MusicPlayer.jsx';
 import MusicLibrary from './components/music/MusicLibrary.jsx';
 import UploadPage from './components/music/UploadPage.jsx';
 import MusicFab from './components/music/MusicFab.jsx';
+import MiniPlayer from './components/music/MiniPlayer.jsx';
+import { MusicProvider } from './context/MusicContext.jsx';
 
 function App() {
   const navigate = useNavigate();
@@ -70,6 +72,7 @@ function App() {
   ];
 
   return (
+    <MusicProvider>
     <div className="min-h-screen bg-gray-50">
       {/* Splash screen — se muestra antes del login, una vez por sesión */}
       {showSplash && (
@@ -149,6 +152,9 @@ function App() {
       {/* Music FAB — botón flotante para acceder a la música */}
       {token && <MusicFab />}
 
+      {/* Mini-player — persiste la reproducción mientras navegás */}
+      {token && <MiniPlayer />}
+
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -162,6 +168,7 @@ function App() {
         theme="light"
       />
     </div>
+    </MusicProvider>
   );
 }
 
