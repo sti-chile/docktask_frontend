@@ -135,6 +135,7 @@ function App() {
               )}
               {/* Música */}
               <Route path="/music" element={<PrivateRoute token={token}><MusicPlayer /></PrivateRoute>} />
+              <Route path="/music/player" element={<PrivateRoute token={token}><MusicPlayer /></PrivateRoute>} />
               <Route path="/music/library" element={<PrivateRoute token={token}><MusicLibrary /></PrivateRoute>} />
               <Route path="/music/upload" element={<PrivateRoute token={token}><UploadPage /></PrivateRoute>} />
             </>
