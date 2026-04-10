@@ -9,10 +9,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "tauri": "tauri",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build --mode production",
-    "tauri:build:android": "tauri android build --mode production",
-    "tauri:dev:android": "tauri android dev --mode development"
+    "tauri:dev": "tauri dev -- --mode development",
+    "tauri:build": "tauri build -- --mode production",
+    "tauri:build:android": "tauri android build --apk -- --mode production",
+    "tauri:dev:android": "tauri android dev -- --mode development"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
