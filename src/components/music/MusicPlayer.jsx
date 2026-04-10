@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { httpClient } from '../../lib/httpClient';
 import { useTauri } from '../../hooks/useTauri';
@@ -15,6 +15,7 @@ const MusicPlayer = () => {
   
   const audioRef = useRef(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isMobile } = useTauri();
 
   // Cargar playlist inicial (ejemplo)
@@ -27,6 +28,15 @@ const MusicPlayer = () => {
       const data = await httpClient.get('/api/v1/music/tracks');
       if (data && data.length > 0) {
         setPlaylist(data);
+        const trackIdParam = searchParams.get('track');
+        if (trackIdParam) {
+          const idx = data.findIndex(t => String(t.id) === trackIdParam);
+          if (idx !== -1) {
+            setCurrentTrack(data[idx]);
+            setCurrentIndex(idx);
+            return;
+          }
+        }
         if (!currentTrack) {
           setCurrentTrack(data[0]);
           setCurrentIndex(0);
@@ -103,16 +113,23 @@ const MusicPlayer = () => {
     if (!currentTrack) return;
     const fetchStreamUrl = async () => {
       try {
+        console.log(`[MusicPlayer] Fetching stream URL for track ${currentTrack.id}...`);
         const data = await httpClient.get(`/api/v1/music/tracks/${currentTrack.id}/stream`);
         const { stream_url } = data;
+        console.log(`[MusicPlayer] Got stream URL: ${stream_url}`);
         if (audioRef.current) {
           audioRef.current.src = stream_url;
+          audioRef.current.load(); // Force reload
+          console.log(`[MusicPlayer] Audio src set, isPlaying: ${isPlaying}`);
           if (isPlaying) {
-            audioRef.current.play().catch(e => console.error('Play error:', e));
+            audioRef.current.play().catch(e => {
+              console.error('[MusicPlayer] Play error:', e);
+              toast.error('No se pudo reproducir: ' + e.message);
+            });
           }
         }
       } catch (error) {
-        console.error('Error obteniendo stream URL:', error);
+        console.error('[MusicPlayer] Error obteniendo stream URL:', error);
         toast.error('No se pudo cargar el audio');
       }
     };
@@ -324,7 +341,7 @@ const MusicPlayer = () => {
                             <div className="text-sm text-gray-400">{track.artist || 'Desconocido'}</div>
                           </div>
                         </div>
-                        <div className="text-xs text-gray-500">{formatTime(track.duration_seconds)}</div>
+                        <div className="text-xs text-gray-500">{formatTime(track.duration)}</div>
                       </div>
                     </li>
                   ))}
@@ -342,11 +359,17 @@ const MusicPlayer = () => {
       {/* Audio element (hidden) */}
       <audio
         ref={audioRef}
+        crossOrigin="anonymous"
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleNext}
         onLoadedMetadata={() => {
           if (audioRef.current) setDuration(audioRef.current.duration);
         }}
+        onError={(e) => {
+          console.error('Audio error:', e.target.error);
+          toast.error(`Error de audio: ${e.target.error?.message || 'No se pudo cargar'}`);
+        }}
+        onCanPlay={() => console.log('Audio ready to play')}
       />
 
       {/* Footer con información técnica */}
