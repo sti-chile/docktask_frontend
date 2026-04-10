@@ -1,26 +1,42 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { httpClient } from '../../lib/httpClient';
 import { useTauri } from '../../hooks/useTauri';
+import { useMusic } from '../../context/MusicContext';
 
 const MusicPlayer = () => {
-  const [currentTrack, setCurrentTrack] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.8);
-  const [playlist, setPlaylist] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  
-  const audioRef = useRef(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { isMobile } = useTauri();
 
-  // Cargar playlist inicial (ejemplo)
+  const {
+    currentTrack, setCurrentTrack,
+    playlist, setPlaylist,
+    currentIndex, setCurrentIndex,
+    isPlaying, setIsPlaying,
+    currentTime, duration,
+    volume,
+    togglePlay, next, prev, seek, setVolume,
+    formatTime,
+  } = useMusic();
+
+  // Load playlist on mount — only if playlist is empty (not already loaded by context)
   useEffect(() => {
-    fetchPlaylist();
+    if (playlist.length === 0) {
+      fetchPlaylist();
+    } else {
+      // Playlist already loaded — check if a specific track was requested via URL
+      const trackIdParam = searchParams.get('track');
+      if (trackIdParam) {
+        const idx = playlist.findIndex(t => String(t.id) === trackIdParam);
+        if (idx !== -1 && idx !== currentIndex) {
+          setCurrentTrack(playlist[idx]);
+          setCurrentIndex(idx);
+        }
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchPlaylist = async () => {
@@ -49,92 +65,16 @@ const MusicPlayer = () => {
   };
 
   const handlePlayPause = () => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch(e => {
-        console.error('Error al reproducir:', e);
-        toast.error('No se pudo reproducir el audio');
-      });
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-      setDuration(audioRef.current.duration || 0);
-    }
+    togglePlay();
   };
 
   const handleSeek = (e) => {
-    const newTime = parseFloat(e.target.value);
-    if (audioRef.current) {
-      audioRef.current.currentTime = newTime;
-      setCurrentTime(newTime);
-    }
+    seek(parseFloat(e.target.value));
   };
 
   const handleVolumeChange = (e) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-    }
+    setVolume(parseFloat(e.target.value));
   };
-
-  const handleNext = () => {
-    if (playlist.length === 0) return;
-    const nextIndex = (currentIndex + 1) % playlist.length;
-    setCurrentTrack(playlist[nextIndex]);
-    setCurrentIndex(nextIndex);
-    setIsPlaying(true);
-    // El efecto de abajo manejará el cambio de src
-  };
-
-  const handlePrev = () => {
-    if (playlist.length === 0) return;
-    const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-    setCurrentTrack(playlist[prevIndex]);
-    setCurrentIndex(prevIndex);
-    setIsPlaying(true);
-  };
-
-  const formatTime = (seconds) => {
-    if (isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Cuando cambia currentTrack, obtener stream URL y actualizar audio src
-  useEffect(() => {
-    if (!currentTrack) return;
-    const fetchStreamUrl = async () => {
-      try {
-        console.log(`[MusicPlayer] Fetching stream URL for track ${currentTrack.id}...`);
-        const data = await httpClient.get(`/api/v1/music/tracks/${currentTrack.id}/stream`);
-        const { stream_url } = data;
-        console.log(`[MusicPlayer] Got stream URL: ${stream_url}`);
-        if (audioRef.current) {
-          audioRef.current.src = stream_url;
-          audioRef.current.load(); // Force reload
-          console.log(`[MusicPlayer] Audio src set, isPlaying: ${isPlaying}`);
-          if (isPlaying) {
-            audioRef.current.play().catch(e => {
-              console.error('[MusicPlayer] Play error:', e);
-              toast.error('No se pudo reproducir: ' + e.message);
-            });
-          }
-        }
-      } catch (error) {
-        console.error('[MusicPlayer] Error obteniendo stream URL:', error);
-        toast.error('No se pudo cargar el audio');
-      }
-    };
-    fetchStreamUrl();
-  }, [currentTrack]);
 
   return (
     <div className={`bg-music-bg text-music-text rounded-xl border-2 border-music-border shadow-2xl p-6 ${isMobile ? 'mb-20' : ''}`}>
@@ -251,7 +191,7 @@ const MusicPlayer = () => {
           <div className="bg-music-card border border-music-border rounded-xl p-6">
             <div className="flex items-center justify-center space-x-8">
               <button
-                onClick={handlePrev}
+                onClick={prev}
                 className="p-4 rounded-full bg-gray-800 hover:bg-gray-700 border-2 border-gray-700 hover:border-primary transition-all duration-200 shadow-lg hover:shadow-primary/30"
                 title="Anterior"
               >
@@ -275,7 +215,7 @@ const MusicPlayer = () => {
                 )}
               </button>
               <button
-                onClick={handleNext}
+                onClick={next}
                 className="p-4 rounded-full bg-gray-800 hover:bg-gray-700 border-2 border-gray-700 hover:border-primary transition-all duration-200 shadow-lg hover:shadow-primary/30"
                 title="Siguiente"
               >
@@ -355,22 +295,6 @@ const MusicPlayer = () => {
           </div>
         </div>
       </div>
-
-      {/* Audio element (hidden) */}
-      <audio
-        ref={audioRef}
-        crossOrigin="anonymous"
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={handleNext}
-        onLoadedMetadata={() => {
-          if (audioRef.current) setDuration(audioRef.current.duration);
-        }}
-        onError={(e) => {
-          console.error('Audio error:', e.target.error);
-          toast.error(`Error de audio: ${e.target.error?.message || 'No se pudo cargar'}`);
-        }}
-        onCanPlay={() => console.log('Audio ready to play')}
-      />
 
       {/* Footer con información técnica */}
       <div className="mt-8 pt-6 border-t border-music-border text-xs text-gray-500 flex justify-between">
