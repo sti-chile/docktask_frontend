@@ -4,15 +4,15 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --mode development",
+    "build": "vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build",
-    "tauri:build:android": "tauri android build",
-    "tauri:dev:android": "tauri android dev"
+    "tauri:build": "tauri build --mode production",
+    "tauri:build:android": "tauri android build --mode production",
+    "tauri:dev:android": "tauri android dev --mode development"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
