@@ -129,7 +129,7 @@ const UpdateChecker = () => {
           disabled={status === 'downloading'}
           style={{
             flex: 1, padding: '8px 12px', borderRadius: 8,
-            border: 'none', background: 'hsl(var(--primary))',
+            border: 'none', background: 'linear-gradient(135deg, #4a9eff, #7c3aed)',
             color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer',
             opacity: status === 'downloading' ? 0.7 : 1,
           }}

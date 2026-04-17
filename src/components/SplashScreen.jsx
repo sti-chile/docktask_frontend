@@ -22,7 +22,7 @@ const SplashScreen = ({ onFinish }) => {
     <div
       className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
       style={{
-        background: 'hsl(var(--background))',
+        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)',
         opacity: phase === 'exit' ? 0 : 1,
         transition: 'opacity 0.6s ease-in-out',
         paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -38,7 +38,7 @@ const SplashScreen = ({ onFinish }) => {
             style={{
               width: `${Math.random() * 6 + 2}px`,
               height: `${Math.random() * 6 + 2}px`,
-              background: 'hsl(var(--primary))',
+              background: '#4a9eff',
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               animation: `float-particle ${3 + Math.random() * 4}s ease-in-out infinite`,
@@ -60,7 +60,7 @@ const SplashScreen = ({ onFinish }) => {
         <div className="flex items-center gap-2 justify-center mb-1">
           <div style={{
             width: 36, height: 36,
-            background: 'hsl(var(--primary))',
+            background: 'linear-gradient(135deg, #4a9eff, #7c3aed)',
             borderRadius: 10,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
@@ -273,14 +273,14 @@ const SplashScreen = ({ onFinish }) => {
           style={{
             marginTop: 20,
             padding: '10px 32px',
-            background: 'hsl(var(--primary))',
+            background: 'linear-gradient(135deg, #4a9eff, #7c3aed)',
             border: 'none',
             borderRadius: 24,
             color: 'white',
             fontSize: 15,
             fontWeight: 700,
             cursor: 'pointer',
-            boxShadow: 'none',
+            boxShadow: '0 4px 20px rgba(124, 58, 237, 0.4)',
             letterSpacing: 0.5,
           }}
         >
