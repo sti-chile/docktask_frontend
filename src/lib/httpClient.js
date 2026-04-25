@@ -26,13 +26,12 @@ class HttpClient {
   }
 
   /**
-   * Obtiene el token de autenticación del localStorage o usa el token customizado
+   * Obtiene el token de autenticación (token provisto en constructor o withToken).
+   * Ya NO lee localStorage — el token debe ser inyectado explicitamente.
    * @returns {string|null}
    */
   getAuthToken() {
-    if (this.customToken) return this.customToken;
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token');
+    return this.customToken ?? null;
   }
 
   /**
@@ -86,14 +85,9 @@ class HttpClient {
         errorText ||
         `Error HTTP: ${response.status}`;
 
-      // Si es 401, limpiar token y redirigir a login
-      if (response.status === 401) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
-        }
-      }
+      // Si es 401: el llamador (hooks/queries) debe manejar el logout
+      // via onUnauthorized callback en ApiClient (lib/api.ts).
+      // httpClient.js es legacy — no manipula estado global.
 
       const error = new Error(errorMessage);
       error.status = response.status;
@@ -216,7 +210,8 @@ class HttpClient {
   }
 }
 
-// Exportar instancia singleton (usa token de localStorage)
+// Singleton para requests sin auth (login, register)
+// Para requests autenticados: usar createHttpClient(token) o lib/api.ts
 export const httpClient = new HttpClient();
 
 // Exportar clase para crear instancias con tokens específicos
