@@ -11,6 +11,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline/index.js';
 import { useTauri } from '../hooks/useTauri';
+import { useAuth } from '@/context/AuthContext';
 
 // ─────────────────────────────────────────────
 //  LINKS DE NAVEGACIÓN
@@ -36,7 +37,7 @@ const Navbar = ({ token, onLogout }) => {
   const { isMobile } = useTauri();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const { user } = useAuth();
   const links = NAV_LINKS(user);
 
   const handleLogout = () => {

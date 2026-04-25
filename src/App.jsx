@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Routes,
   Route,
@@ -7,6 +7,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { saveTauriAuthToken, clearTauriAuthToken, useDeepLink, useTauri } from "./hooks/useTauri";
+import { useAuth } from "@/context/AuthContext";
 import SplashScreen from "./components/SplashScreen.jsx";
 import UpdateChecker from "./components/UpdateChecker.jsx";
 import LoginForm from "./components/LoginForms.jsx";
@@ -38,31 +39,24 @@ import { MusicProvider } from './context/MusicContext.jsx';
 function App() {
   const navigate = useNavigate();
   const { isMobile } = useTauri();
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
+  const { token, user, login, logout } = useAuth();
 
   // Mostrar splash solo si no hay sesión activa y no se vio en esta sesión
-  const [showSplash, setShowSplash] = useState(
-    () => !localStorage.getItem("token") && !sessionStorage.getItem("splashSeen")
+  const [showSplash, setShowSplash] = React.useState(
+    () => !token && !sessionStorage.getItem("splashSeen")
   );
 
   // Deep links — notificación → navega a la ruta correcta
   useDeepLink(navigate);
 
-  const handleLogin = (token, user) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-    setToken(token);
-    setUser(user);
+  const handleLogin = (newToken, newUser) => {
+    login(newToken, newUser);
     // Persistir token en Tauri Store para que el sync worker lo lea
-    saveTauriAuthToken(token);
+    saveTauriAuthToken(newToken);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
+    logout();
     // Limpiar token del Tauri Store
     clearTauriAuthToken();
   };
