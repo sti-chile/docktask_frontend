@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 env:
-  NDK_VERSION: "27.0.12077973"
+  NDK_VERSION: "29.0.14206865"
   ANDROID_API: "34"
 
 jobs:
@@ -93,7 +93,7 @@ jobs:
 
       # ── Build APK (release sin firmar) ────────────────────────────
       - name: Build Android APK
-        run: npm run tauri:build:android -- --apk
+        run: npm run tauri:build:android
         env:
           NDK_HOME: ${{ env.NDK_HOME }}
           ANDROID_NDK_HOME: ${{ env.NDK_HOME }}
