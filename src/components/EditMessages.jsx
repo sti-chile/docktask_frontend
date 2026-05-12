@@ -1,11 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { createHttpClient, httpClient } from '@/lib/httpClient';
+import LinkPreview from './LinkPreview';
+import { extractFirstUrl } from '../api/previewApi';
 
 function EditMessage({ token }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [mensaje, setMensaje] = useState("");
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const debounceRef = useRef(null);
+
+  // Detectar URLs con debounce
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setPreviewUrl(extractFirstUrl(mensaje));
+    }, 600);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [mensaje]);
 
   useEffect(() => {
     const api = token ? createHttpClient(token) : httpClient;
@@ -46,7 +59,9 @@ function EditMessage({ token }) {
             onChange={(e) => setMensaje(e.target.value)}
             rows="5"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Edite el contenido del mensaje"
           />
+          {previewUrl && <LinkPreview url={previewUrl} />}
         </div>
         <div className="flex gap-4">
           <button
