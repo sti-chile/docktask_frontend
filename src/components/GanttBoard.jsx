@@ -5,12 +5,36 @@ import "gantt-task-react/dist/index.css";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { createHttpClient } from "@/lib/httpClient";
 
-const GanttBoard = ({ proyectoId }) => {
+const GanttBoard = ({ proyectoId, mensajes: propsMensajes, token }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Modo embedido: recibe mensajes directamente
+    if (propsMensajes) {
+      const tareasValidas = propsMensajes
+        .filter((m) => m.start_date && m.expiration_date)
+        .map((m) => ({
+          id: String(m.id),
+          name: m.nombre,
+          start: new Date(m.start_date),
+          end: new Date(m.expiration_date),
+          type: "task",
+          progress: m.estado === "completado" ? 100 : m.estado === "en_progreso" ? 50 : 0,
+          isDisabled: false,
+          dependencies: [],
+        }));
+      if (tareasValidas.length === 0) {
+        setError("No hay mensajes con fechas asignadas para mostrar en el Gantt.");
+      } else {
+        setTasks(tareasValidas);
+      }
+      setLoading(false);
+      return;
+    }
+
+    // Modo standalone: carga mensajes del proyecto
     if (!proyectoId) {
       setError("No se especificó un proyecto.");
       setLoading(false);
@@ -18,7 +42,6 @@ const GanttBoard = ({ proyectoId }) => {
     }
 
     const controller = new AbortController();
-    const token = localStorage.getItem("token");
     const api = createHttpClient(token);
 
     api
@@ -53,7 +76,7 @@ const GanttBoard = ({ proyectoId }) => {
       });
 
     return () => controller.abort();
-  }, [proyectoId]);
+  }, [proyectoId, propsMensajes]);
 
   return (
     <div className="container mx-auto px-4 py-8">

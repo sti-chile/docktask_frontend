@@ -3,9 +3,9 @@
  * Llama al endpoint de Obscura para extraer metadata de URLs.
  */
 
-export async function fetchLinkPreview(url) {
-  const token = localStorage.getItem('access_token');
-  const res = await fetch('/api/v1/preview/link', {
+export async function fetchLinkPreview(url, token) {
+  const API_BASE = import.meta.env.VITE_API_URL || 'https://api.docktask.com';
+  const res = await fetch(`${API_BASE}/api/v1/preview/link`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

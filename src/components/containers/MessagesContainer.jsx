@@ -110,10 +110,7 @@ const MessagesContainer = ({ token }) => {
       {activeView === 'gantt' && (
         <GanttBoard
           mensajes={mensajes}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onEstadoChange={handleEstadoChange}
-          onFechaExpiracionChange={handleFechaExpiracionChange}
+          token={token}
         />
       )}
     </div>

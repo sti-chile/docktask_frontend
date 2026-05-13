@@ -25,9 +25,8 @@ const CreateProject = ({ token }) => {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
       const user = jwtDecode(token);
-      const owner_id = user.id;
+      const owner_id = user.sub;
       const formDataOwner = {
         ...formData,
         owner_id,

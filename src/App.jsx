@@ -169,7 +169,8 @@ function App() {
 // Wrapper para extraer :id de la URL y pasarlo como prop a GanttBoard
 function GanttWrapper() {
   const { id } = useParams();
-  return <GanttBoard proyectoId={id} />;
+  const { token } = useAuth();
+  return <GanttBoard proyectoId={id} token={token} />;
 }
 
 export default App;
