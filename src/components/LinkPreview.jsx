@@ -8,7 +8,7 @@ import '../styles/LinkPreview.css';
  * 
  * @param {{ url: string }} props
  */
-const LinkPreview = ({ url }) => {
+const LinkPreview = ({ url, token }) => {
   const [state, setState] = useState('loading'); // loading | loaded | error
   const [data, setData] = useState(null);
 
@@ -19,7 +19,7 @@ const LinkPreview = ({ url }) => {
     setState('loading');
     setData(null);
 
-    fetchLinkPreview(url)
+    fetchLinkPreview(url, token)
       .then((result) => {
         if (!cancelled) {
           setData(result);
