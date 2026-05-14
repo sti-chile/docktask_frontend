@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PencilIcon, TrashIcon, ShareIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, ShareIcon, LockClosedIcon, FolderOpenIcon } from '@heroicons/react/24/outline';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +35,10 @@ const WorkspaceCard = ({ workspace, onDelete, onEdit, isOwner }) => {
     onEdit(workspace);
   };
 
+  const handleClick = () => {
+    navigate(`/mis-proyectos?workspace_id=${workspace.id}`);
+  };
+
   const estadoColor = {
     activo: 'bg-green-100 text-green-700',
     inactivo: 'bg-gray-100 text-gray-500',
@@ -42,7 +46,10 @@ const WorkspaceCard = ({ workspace, onDelete, onEdit, isOwner }) => {
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300">
+    <Card
+      className="group hover:shadow-lg transition-all duration-300 cursor-pointer"
+      onClick={handleClick}
+    >
       <CardHeader className="space-y-1">
         <div className="flex items-start justify-between">
           <CardTitle className="text-xl font-semibold tracking-tight">
@@ -88,6 +95,9 @@ const WorkspaceCard = ({ workspace, onDelete, onEdit, isOwner }) => {
                 <span>Privado</span>
               </>
             )}
+            <span className="mx-1">·</span>
+            <FolderOpenIcon className="h-4 w-4 text-gray-400" />
+            <span>Ver proyectos</span>
           </div>
           {workspace.created_at && (
             <div className="text-sm text-gray-400">

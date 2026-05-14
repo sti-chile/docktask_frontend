@@ -13,13 +13,13 @@ import UpdateChecker from "./components/UpdateChecker.jsx";
 import LoginForm from "./components/LoginForms.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import RegisterForm from "./components/RegisterForm.jsx";
-import MessagesContainer from "./components/containers/MessagesContainer";
-import EditMessage from "./components/EditMessages.jsx";
+import TasksContainer from "./components/containers/TasksContainer";
+import EditTask from "./components/EditTasks.jsx";
 import EditUsers from "./components/EditUsers.jsx";
 import Navbar from "./components/Navbar.jsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import CreateMessage from './components/CreateMessage';
+import CreateTask from './components/CreateTask';
 import Dashboard from './components/Dashboard';
 import ProjectsContainer from './components/containers/ProjectsContainer';
 import CreateProject from './components/CreateProject';
@@ -60,10 +60,6 @@ function App() {
     // Limpiar token del Tauri Store
     clearTauriAuthToken();
   };
-  const ultimosMensajes = [
-    { id: 1, nombre: "Soporte conexión caja", estado: "pendiente", updated_at: new Date() },
-    { id: 2, nombre: "Instalación balanceadora", estado: "completado", updated_at: new Date() },
-  ];
 
   return (
     <MusicProvider>
@@ -94,25 +90,24 @@ function App() {
                   token={token}
                   userData={user}
                   isLoading={false}
-                  ultimosMensajes={ultimosMensajes}
-                  onCrearMensaje={() => navigate('/create')}
-                  onCrearProyecto={() => navigate('/crear-proyecto')}
-                  onVerTodosMensajes={() => navigate('/mis-mensajes')}
+                  onVerTodasLasTareas={() => navigate('/mis-tareas')}
                 />
               </PrivateRoute>
             }
           />
 
-
           <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
           <Route path="/register" element={<RegisterForm />} />
-          {/* Ruta /gantt suelta redirige a proyectos */}
+          {/* Redirecciones de rutas antiguas */}
           <Route path="/gantt" element={<Navigate to="/mis-proyectos" replace />} />
+          <Route path="/mis-mensajes" element={<Navigate to="/mis-tareas" replace />} />
+          <Route path="/mensajes" element={<Navigate to="/mis-tareas" replace />} />
           {token && (
             <>
-              <Route path="/mis-mensajes" element={<PrivateRoute token={token}><MessagesContainer token={token} /></PrivateRoute>} />
-              <Route path="/create" element={<PrivateRoute token={token}><CreateMessage token={token} /></PrivateRoute>} />
-              <Route path="/edit/:id" element={<PrivateRoute token={token}><EditMessage token={token} /></PrivateRoute>} />
+              <Route path="/mis-tareas" element={<PrivateRoute token={token}><TasksContainer token={token} /></PrivateRoute>} />
+              <Route path="/mis-proyectos/:id/tareas" element={<PrivateRoute token={token}><ProyectoTareasWrapper /></PrivateRoute>} />
+              <Route path="/create" element={<PrivateRoute token={token}><CreateTask token={token} /></PrivateRoute>} />
+              <Route path="/edit/:id" element={<PrivateRoute token={token}><EditTask token={token} /></PrivateRoute>} />
               <Route path="/mis-proyectos" element={<PrivateRoute token={token}><ProjectsContainer token={token} /></PrivateRoute>} />
               <Route path="/crear-proyecto" element={<PrivateRoute token={token}><CreateProject token={token} /></PrivateRoute>} />
               <Route path="/editar-proyecto/:id" element={<PrivateRoute token={token}><EditProject token={token} /></PrivateRoute>} />
@@ -171,6 +166,24 @@ function GanttWrapper() {
   const { id } = useParams();
   const { token } = useAuth();
   return <GanttBoard proyectoId={id} token={token} />;
+}
+
+// Wrapper para tareas filtradas por proyecto
+function ProyectoTareasWrapper() {
+  const { id } = useParams();
+  const { token } = useAuth();
+  const navigate = useNavigate();
+  return (
+    <div>
+      <button
+        onClick={() => navigate('/mis-proyectos')}
+        className="ml-6 mt-4 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+      >
+        ← Volver a proyectos
+      </button>
+      <TasksContainer token={token} proyectoId={parseInt(id)} />
+    </div>
+  );
 }
 
 export default App;

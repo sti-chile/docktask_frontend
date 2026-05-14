@@ -73,7 +73,7 @@ const LoginForm = ({ onLogin }) => {
       }
 
       // Redirigir según el rol
-      const redirectPath = user.rol === 'admin' ? '/admin' : '/mis-mensajes';
+      const redirectPath = user.rol === 'admin' ? '/admin' : '/mis-tareas';
       navigate(redirectPath);
 
     } catch (error) {

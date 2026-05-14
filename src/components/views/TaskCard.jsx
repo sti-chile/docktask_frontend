@@ -24,8 +24,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const MessageCard = ({
-  mensaje,
+const TaskCard = ({
+  tarea,
   onEstadoChange,
   onDelete,
   onDuplicar,
@@ -34,11 +34,11 @@ const MessageCard = ({
   currentDroppableId = null
 }) => {
   const navigate = useNavigate();
-  const [localEstado, setLocalEstado] = useState(mensaje.estado);
+  const [localEstado, setLocalEstado] = useState(tarea.estado);
 
   const handleEstadoChange = (nuevoEstado) => {
     if (onEstadoChange) {
-      onEstadoChange(mensaje.id, nuevoEstado);
+      onEstadoChange(tarea.id, nuevoEstado);
     }
   };
 
@@ -69,7 +69,7 @@ const MessageCard = ({
           className={`animate-fade-in transition-all duration-300 ${isDragging ? "opacity-50 cursor-grabbing" : "cursor-pointer hover:shadow-md"}`}
         >
           <CardHeader className="pb-2 border-b flex flex-col sm:flex-row justify-between gap-2">
-            <CardTitle className="text-lg font-semibold break-words">{mensaje.nombre}</CardTitle>
+            <CardTitle className="text-lg font-semibold break-words">{tarea.nombre}</CardTitle>
             <div className="flex-wrap w-full max-w-xs sm:w-60" onClick={e => e.stopPropagation()}>
               <EstadoSelect
                 estado={estadoActual}
@@ -83,21 +83,21 @@ const MessageCard = ({
 
           <CardContent>
             {/* Descripción resumida */}
-            <p className="text-gray-600 mb-4 line-clamp-3">{mensaje.mensaje}</p>
+            <p className="text-gray-600 mb-4 line-clamp-3">{tarea.descripcion || tarea.mensaje}</p>
 
             <div className="flex items-center text-sm text-gray-500 border-t pt-4 mb-4">
               <ClockIcon className="h-4 w-4 mr-2" />
               <span>
-                Actualizado: {formatDate(mensaje.fecha_actualizacion || mensaje.updated_at || mensaje.fecha)}
+                Actualizado: {formatDate(tarea.fecha_actualizacion || tarea.updated_at || tarea.fecha)}
               </span>
             </div>
 
             <div onClick={e => e.stopPropagation()}>
               <ExpirationInfo
-                expirationDate={mensaje.expiration_date}
+                expirationDate={tarea.expiration_date}
                 onDateChange={(fecha) => {
                   if (onFechaExpiracionChange && fecha != null) {
-                      onFechaExpiracionChange(mensaje.id, fecha);
+                      onFechaExpiracionChange(tarea.id, fecha);
                     }
                   }}
                 />
@@ -111,8 +111,8 @@ const MessageCard = ({
                       variant="outline"
                       size="icon"
                       onClick={e => {
-                        e.stopPropagation(); // Evita que abra modal
-                        navigate(`/edit/${mensaje.id}`);
+                        e.stopPropagation();
+                        navigate(`/edit/${tarea.id}`);
                       }}
                       className="h-9 w-9 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 border-yellow-200"
                     >
@@ -133,7 +133,7 @@ const MessageCard = ({
                       size="icon"
                       onClick={e => {
                         e.stopPropagation();
-                        onDelete(mensaje.id);
+                        onDelete(tarea.id);
                       }}
                       className="h-9 w-9 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                     >
@@ -154,7 +154,7 @@ const MessageCard = ({
                       size="icon"
                       onClick={e => {
                         e.stopPropagation();
-                        onDuplicar(mensaje);
+                        onDuplicar(tarea);
                       }}
                       className="h-9 w-9 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
                     >
@@ -175,38 +175,37 @@ const MessageCard = ({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex justify-between items-center">
-            {mensaje.nombre}
+            {tarea.nombre}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="font-semibold text-gray-600">Estado</h3>
-              <p className="text-gray-900">{mensaje.estado}</p>
+              <p className="text-gray-900">{tarea.estado}</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-600">Proyecto</h3>
+              <p className="text-gray-900">{tarea.proyecto_id || '—'}</p>
             </div>
             <div>
               <h3 className="font-semibold text-gray-600">Fecha</h3>
-              <p className="text-gray-900">{formatDate(mensaje.fecha)}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-600">Fecha Actualización</h3>
-              <p className="text-gray-900">{formatDate(mensaje.fecha_actualizacion)}</p>
+              <p className="text-gray-900">{formatDate(tarea.fecha)}</p>
             </div>
             <div>
               <h3 className="font-semibold text-gray-600">Fecha Expiración</h3>
-              <p className="text-gray-900">{formatDate(mensaje.expiration_date)}</p>
+              <p className="text-gray-900">{formatDate(tarea.expiration_date)}</p>
             </div>
           </div>
           <div>
             <h3 className="font-semibold text-gray-600 mb-2">Descripción completa</h3>
-            <p className="text-gray-900 whitespace-pre-wrap">{mensaje.mensaje}</p>
+            <p className="text-gray-900 whitespace-pre-wrap">{tarea.descripcion || tarea.mensaje}</p>
           </div>
           <div className="flex justify-end gap-4">
-            {/* Mismos botones de acción, opcional en modal */}
             <Button
               variant="outline"
               size="icon"
-              onClick={(e) => { e.stopPropagation(); onDuplicar(mensaje); }}
+              onClick={(e) => { e.stopPropagation(); onDuplicar(tarea); }}
               className="h-9 w-9 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
             >
               <DocumentDuplicateIcon className="h-4 w-4" />
@@ -214,7 +213,7 @@ const MessageCard = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={(e) => { e.stopPropagation(); onDelete(mensaje.id); }}
+              onClick={(e) => { e.stopPropagation(); onDelete(tarea.id); }}
               className="h-9 w-9 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
             >
               <TrashIcon className="h-4 w-4" />
@@ -222,18 +221,7 @@ const MessageCard = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                onFechaExpiracionChange(mensaje.id, new Date().toISOString());
-              }}
-              className="h-9 w-9 text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-200"
-            >
-              <ClockIcon className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={(e) => { e.stopPropagation(); navigate(`/edit/${mensaje.id}`); }}
+              onClick={(e) => { e.stopPropagation(); navigate(`/edit/${tarea.id}`); }}
               className="h-9 w-9 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 border-yellow-200"
             >
               <PencilSquareIcon className="h-4 w-4" />
@@ -245,4 +233,4 @@ const MessageCard = ({
   );
 };
 
-export default MessageCard;
+export default TaskCard;

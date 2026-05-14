@@ -5,15 +5,16 @@ import "gantt-task-react/dist/index.css";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { createHttpClient } from "@/lib/httpClient";
 
-const GanttBoard = ({ proyectoId, mensajes: propsMensajes, token }) => {
+const GanttBoard = ({ proyectoId, tareas: propsTareas, mensajes: propsMensajes, token }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Modo embedido: recibe mensajes directamente
-    if (propsMensajes) {
-      const tareasValidas = propsMensajes
+    // Modo embedido: recibe tareas directamente
+    const source = propsTareas || propsMensajes;
+    if (source) {
+      const tareasValidas = source
         .filter((m) => m.start_date && m.expiration_date)
         .map((m) => ({
           id: String(m.id),
@@ -26,7 +27,7 @@ const GanttBoard = ({ proyectoId, mensajes: propsMensajes, token }) => {
           dependencies: [],
         }));
       if (tareasValidas.length === 0) {
-        setError("No hay mensajes con fechas asignadas para mostrar en el Gantt.");
+        setError("No hay tareas con fechas asignadas para mostrar en el Gantt.");
       } else {
         setTasks(tareasValidas);
       }
@@ -34,7 +35,7 @@ const GanttBoard = ({ proyectoId, mensajes: propsMensajes, token }) => {
       return;
     }
 
-    // Modo standalone: carga mensajes del proyecto
+    // Modo standalone: carga tareas del proyecto
     if (!proyectoId) {
       setError("No se especificó un proyecto.");
       setLoading(false);
@@ -45,9 +46,9 @@ const GanttBoard = ({ proyectoId, mensajes: propsMensajes, token }) => {
     const api = createHttpClient(token);
 
     api
-      .get(`/api/v1/proyectos/${proyectoId}/mensajes`, { signal: controller.signal })
-      .then((mensajes) => {
-        const tareasValidas = mensajes
+      .get(`/api/v1/proyectos/${proyectoId}/tareas`, { signal: controller.signal })
+      .then((tareas) => {
+        const tareasValidas = tareas
           .filter((m) => m.start_date && m.expiration_date)
           .map((m) => ({
             id: String(m.id),
@@ -59,51 +60,62 @@ const GanttBoard = ({ proyectoId, mensajes: propsMensajes, token }) => {
             isDisabled: false,
             dependencies: [],
           }));
-
         if (tareasValidas.length === 0) {
-          setError("No hay mensajes con fechas asignadas para mostrar en el Gantt.");
+          setError("No hay tareas con fechas asignadas.");
         } else {
           setTasks(tareasValidas);
         }
+        setLoading(false);
       })
       .catch((err) => {
         if (err.name !== "AbortError") {
-          setError("Error al cargar los mensajes del proyecto.");
+          setError("Error al cargar las tareas para el Gantt.");
+          setLoading(false);
         }
-      })
-      .finally(() => {
-        setLoading(false);
       });
 
     return () => controller.abort();
-  }, [proyectoId, propsMensajes]);
+  }, [proyectoId, propsTareas, propsMensajes, token]);
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <Card>
+  if (loading) {
+    return (
+      <Card className="w-full">
         <CardHeader>
-          <CardTitle>Diagrama Gantt del Proyecto</CardTitle>
+          <CardTitle className="animate-pulse bg-gray-200 h-6 w-48 rounded"></CardTitle>
         </CardHeader>
         <CardContent>
-          {loading && (
-            <p className="text-sm text-gray-500">Cargando tareas...</p>
-          )}
-          {!loading && error && (
-            <p className="text-sm text-red-500">{error}</p>
-          )}
-          {!loading && !error && tasks.length > 0 && (
-            <div className="overflow-auto">
-              <Gantt
-                tasks={tasks}
-                viewMode={"Day"}
-                listCellWidth={"155px"}
-                columnWidth={65}
-              />
-            </div>
-          )}
+          <div className="animate-pulse space-y-4">
+            <div className="bg-gray-200 h-4 w-full rounded"></div>
+            <div className="bg-gray-200 h-4 w-3/4 rounded"></div>
+            <div className="bg-gray-200 h-4 w-5/6 rounded"></div>
+          </div>
         </CardContent>
       </Card>
-    </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-gray-500">{error}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-400 text-sm">Asigna fechas de inicio y expiración a tus tareas para visualizarlas en el diagrama de Gantt.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Diagrama de Gantt</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-x-auto">
+        <Gantt tasks={tasks} />
+      </CardContent>
+    </Card>
   );
 };
 

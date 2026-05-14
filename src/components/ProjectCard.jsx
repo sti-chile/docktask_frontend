@@ -40,7 +40,7 @@ const ProjectCard = ({ proyecto, onDelete, onEdit }) => {
   };
 
   const handleClick = () => {
-    navigate(`/mis-mensajes?project_id=${proyecto.id}`);
+    navigate(`/mis-proyectos/${proyecto.id}/tareas`);
   };
 
   return (
@@ -80,7 +80,7 @@ const ProjectCard = ({ proyecto, onDelete, onEdit }) => {
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <ChatBubbleLeftIcon className="h-4 w-4" />
-            <span>{proyecto.total_mensajes || 0} mensajes</span>
+            <span>{proyecto.total_mensajes || 0} tareas</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <CalendarIcon className="h-4 w-4" />
@@ -100,7 +100,7 @@ const ProjectCard = ({ proyecto, onDelete, onEdit }) => {
             size="sm"
             className="text-blue-500 hover:text-blue-600"
           >
-            Ver mensajes
+            Ver tareas
           </Button>
           <Button
             variant="ghost"

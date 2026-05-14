@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMensajesQuery } from '../hooks/useMensajesQuery';
+import { useTareasQuery } from '../hooks/useTareasQuery';
 import {
   ChatBubbleLeftIcon,
   ClipboardDocumentIcon,
@@ -21,9 +21,9 @@ import TourTutorial from '@/components/TourTutorial';
 
 const Dashboard = ({ token }) => {
   const navigate = useNavigate();
-  const { mensajes, loading } = useMensajesQuery(token);
+  const { tareas, loading } = useTareasQuery(token);
 
-  const onVerTodosMensajes = () => navigate('/mis-mensajes');
+  const onVerTodasLasTareas = () => navigate('/mis-tareas');
 
   if (loading) {
     return (
@@ -52,41 +52,41 @@ const Dashboard = ({ token }) => {
   }
 
   // Calcular estadísticas
-  const totalMensajes = mensajes.length;
-  const mensajesPorVencer = mensajes.filter(mensaje => {
-    if (!mensaje.expiration_date) return false;
-    const fechaExpiracion = new Date(mensaje.expiration_date);
+  const totalTareas = tareas.length;
+  const tareasPorVencer = tareas.filter(tarea => {
+    if (!tarea.expiration_date) return false;
+    const fechaExpiracion = new Date(tarea.expiration_date);
     const ahora = new Date();
     const diasRestantes = (fechaExpiracion - ahora) / (1000 * 60 * 60 * 24);
     return diasRestantes > 0 && diasRestantes <= 7;
   }).length;
 
-  const mensajesPorEstado = {
-    pendiente: mensajes.filter(m => m.estado === 'pendiente').length,
-    en_progreso: mensajes.filter(m => m.estado === 'en_progreso').length,
-    completado: mensajes.filter(m => m.estado === 'completado').length,
-    archivado: mensajes.filter(m => m.estado === 'archivado').length,
-    por_vencer: mensajes.filter(m => m.estado === 'por_vencer').length
+  const tareasPorEstado = {
+    pendiente: tareas.filter(t => t.estado === 'pendiente').length,
+    en_progreso: tareas.filter(t => t.estado === 'en_progreso').length,
+    completado: tareas.filter(t => t.estado === 'completado').length,
+    archivado: tareas.filter(t => t.estado === 'archivado').length,
+    por_vencer: tareas.filter(t => t.estado === 'por_vencer').length
   };
 
   const stats = [
     {
-      name: 'Total de Mensajes',
-      value: totalMensajes,
+      name: 'Total de Tareas',
+      value: totalTareas,
       icon: DocumentTextIcon,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10'
     },
     {
       name: 'Por Vencer',
-      value: mensajesPorEstado.por_vencer,
+      value: tareasPorEstado.por_vencer,
       icon: ExclamationCircleIcon,
       color: 'text-yellow-500',
       bgColor: 'bg-yellow-500/10'
     },
     {
       name: 'Pendientes',
-      value: mensajesPorEstado.pendiente,
+      value: tareasPorEstado.pendiente,
       icon: ClockIcon,
       color: 'text-gray-500',
       bgColor: 'bg-gray-500/10',
@@ -94,23 +94,23 @@ const Dashboard = ({ token }) => {
     },
     {
       name: 'En Progreso',
-      value: mensajesPorEstado.en_progreso,
+      value: tareasPorEstado.en_progreso,
       icon: ClockIcon,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
       estado: 'en_progreso'
     },
     {
-      name: 'Completados',
-      value: mensajesPorEstado.completado,
+      name: 'Completadas',
+      value: tareasPorEstado.completado,
       icon: CheckCircleIcon,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
       estado: 'completado'
     },
     {
-      name: 'Archivados',
-      value: mensajesPorEstado.archivado,
+      name: 'Archivadas',
+      value: tareasPorEstado.archivado,
       icon: ArchiveBoxIcon,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
@@ -118,12 +118,11 @@ const Dashboard = ({ token }) => {
     }
   ];
 
-  const ultimosMensajes = mensajes.slice(0, 5);
+  const ultimasTareas = tareas.slice(0, 5);
   const [estadoFiltrado, setEstadoFiltrado] = React.useState(null);
   const handleFiltrarPorEstado = (estado) => {
     setEstadoFiltrado(estado);
   };
-
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -132,11 +131,11 @@ const Dashboard = ({ token }) => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 dashboard-title">Dashboard</h1>
-            <p className="text-gray-500 mt-1">Resumen de tus mensajes y actividades</p>
+            <p className="text-gray-500 mt-1">Resumen de tus tareas y actividades</p>
           </div>
           <Button onClick={() => navigate('/create')} className="flex items-center gap-2">
             <DocumentTextIcon className="h-5 w-5 crear-mensaje-btn" />
-            Crear Nuevo Mensaje
+            Crear Nueva Tarea
           </Button>
         </div>
 
@@ -161,7 +160,7 @@ const Dashboard = ({ token }) => {
           {estadoFiltrado && (
             <Card>
               <CardHeader>
-                <CardTitle>Mensajes con estado: {estadoFiltrado}</CardTitle>
+                <CardTitle>Tareas con estado: {estadoFiltrado}</CardTitle>
                 <CardDescription>Mostrando resultados filtrados</CardDescription>
               </CardHeader>
               <CardContent>
@@ -175,13 +174,13 @@ const Dashboard = ({ token }) => {
                 </Button>
 
                 <ul className="space-y-3">
-                  {mensajes
-                    .filter((msg) => msg.estado === estadoFiltrado)
-                    .map((msg) => (
-                      <li key={msg.id} className="border-b pb-2">
-                        <div className="font-medium text-gray-800">{msg.nombre}</div>
+                  {tareas
+                    .filter((t) => t.estado === estadoFiltrado)
+                    .map((t) => (
+                      <li key={t.id} className="border-b pb-2">
+                        <div className="font-medium text-gray-800">{t.nombre}</div>
                         <div className="text-sm text-gray-500">
-                          {new Date(msg.updated_at).toLocaleDateString('es-CL', {
+                          {new Date(t.updated_at).toLocaleDateString('es-CL', {
                             day: '2-digit',
                             month: 'short',
                             year: 'numeric'
@@ -193,41 +192,40 @@ const Dashboard = ({ token }) => {
               </CardContent>
             </Card>
           )}
-
         </div>
 
         <div>
           <Button
             variant="ghost"
-            onClick={() => navigate('/mis-mensajes')}
+            onClick={() => navigate('/mis-tareas')}
             className="text-blue-500 hover:text-blue-600 font-medium flex items-center gap-2 link-ver-mensajes-btn"
           >
             <DocumentTextIcon className="h-5 w-5" />
-            Ver todos los mensajes
+            Ver todas las tareas
           </Button>
         </div>
 
         <Card className="ultimos-mensajes">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Últimos mensajes</CardTitle>
+              <CardTitle>Últimas tareas</CardTitle>
               <CardDescription>Actividades recientes</CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={onVerTodosMensajes}>
+            <Button variant="outline" size="sm" onClick={onVerTodasLasTareas}>
               <EyeIcon className="h-4 w-4 mr-1" />
-              Ver todos
+              Ver todas
             </Button>
           </CardHeader>
           <CardContent>
-            {ultimosMensajes.length === 0 ? (
-              <p className="text-gray-500">Aún no tienes mensajes recientes.</p>
+            {ultimasTareas.length === 0 ? (
+              <p className="text-gray-500">Aún no tienes tareas recientes.</p>
             ) : (
               <ul className="space-y-3">
-                {ultimosMensajes.map((msg) => (
-                  <li key={msg.id} className="border-b pb-2">
-                    <div className="font-medium text-gray-800">{msg.nombre}</div>
+                {ultimasTareas.map((t) => (
+                  <li key={t.id} className="border-b pb-2">
+                    <div className="font-medium text-gray-800">{t.nombre}</div>
                     <div className="text-sm text-gray-500">
-                      Estado: <span className="font-semibold">{msg.estado}</span> · {new Date(msg.updated_at).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      Estado: <span className="font-semibold">{t.estado}</span> · {new Date(t.updated_at).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </div>
                   </li>
                 ))}
