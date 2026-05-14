@@ -4,7 +4,11 @@ import {
   PencilSquareIcon, 
   TrashIcon, 
   DocumentDuplicateIcon,
-  ClockIcon
+  ClockIcon,
+  ChatBubbleLeftIcon,
+  PaperAirplaneIcon,
+  XMarkIcon,
+  UserCircleIcon
 } from "@heroicons/react/24/outline";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import EstadoSelect from '../EstadoSelect';
@@ -23,6 +27,95 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useComentariosQuery } from '../../hooks/useComentariosQuery';
+import { useAuth } from '@/context/AuthContext';
+
+// Componente interno para la sección de comentarios
+const ComentariosSection = ({ tareaId, token }) => {
+  const { comentarios, isLoading, crearComentario, eliminarComentario } = useComentariosQuery(token, tareaId);
+  const [nuevoComentario, setNuevoComentario] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!nuevoComentario.trim()) return;
+    crearComentario.mutate({ contenido: nuevoComentario.trim() });
+    setNuevoComentario('');
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const d = new Date(dateString);
+      return d.toLocaleDateString('es-CL', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    } catch { return ''; }
+  };
+
+  return (
+    <div className="border-t pt-4 mt-4">
+      <div className="flex items-center gap-2 mb-3">
+        <ChatBubbleLeftIcon className="h-5 w-5 text-gray-500" />
+        <h3 className="font-semibold text-gray-700">Comentarios ({comentarios.length})</h3>
+      </div>
+
+      {/* Lista de comentarios */}
+      <div className="space-y-3 max-h-60 overflow-y-auto mb-3">
+        {isLoading ? (
+          <p className="text-sm text-gray-400">Cargando comentarios...</p>
+        ) : comentarios.length === 0 ? (
+          <p className="text-sm text-gray-400 italic">Sin comentarios aún</p>
+        ) : (
+          comentarios.map((c) => (
+            <div key={c.id} className="flex gap-2 bg-gray-50 rounded-lg p-3">
+              <UserCircleIcon className="h-8 w-8 text-gray-400 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium text-gray-700 truncate">
+                    {c.usuario_nombre || `Usuario #${c.usuario_id}`}
+                  </span>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <span className="text-xs text-gray-400">{formatDate(c.created_at)}</span>
+                    <button
+                      onClick={() => eliminarComentario.mutate(c.id)}
+                      className="text-gray-300 hover:text-red-500 transition-colors"
+                      title="Eliminar"
+                    >
+                      <XMarkIcon className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mt-0.5 whitespace-pre-wrap break-words">
+                  {c.contenido}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Formulario nuevo comentario */}
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        <input
+          type="text"
+          value={nuevoComentario}
+          onChange={(e) => setNuevoComentario(e.target.value)}
+          placeholder="Escribe un comentario..."
+          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <Button
+          type="submit"
+          size="sm"
+          disabled={!nuevoComentario.trim() || crearComentario.isPending}
+          className="flex items-center gap-1"
+        >
+          <PaperAirplaneIcon className="h-4 w-4" />
+        </Button>
+      </form>
+    </div>
+  );
+};
 
 const TaskCard = ({
   tarea,
@@ -35,6 +128,7 @@ const TaskCard = ({
 }) => {
   const navigate = useNavigate();
   const [localEstado, setLocalEstado] = useState(tarea.estado);
+  const { token } = useAuth();
 
   const handleEstadoChange = (nuevoEstado) => {
     if (onEstadoChange) {
@@ -42,7 +136,6 @@ const TaskCard = ({
     }
   };
 
-  // Permite drag & drop
   const estadoActual = isDragging && currentDroppableId ? currentDroppableId : localEstado;
 
   const formatDate = (dateString) => {
@@ -82,7 +175,6 @@ const TaskCard = ({
           </CardHeader>
 
           <CardContent>
-            {/* Descripción resumida */}
             <p className="text-gray-600 mb-4 line-clamp-3">{tarea.descripcion || tarea.mensaje}</p>
 
             <div className="flex items-center text-sm text-gray-500 border-t pt-4 mb-4">
@@ -172,7 +264,7 @@ const TaskCard = ({
       </DialogTrigger>
 
       {/* MODAL AMPLIADO */}
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex justify-between items-center">
             {tarea.nombre}
@@ -201,7 +293,11 @@ const TaskCard = ({
             <h3 className="font-semibold text-gray-600 mb-2">Descripción completa</h3>
             <p className="text-gray-900 whitespace-pre-wrap">{tarea.descripcion || tarea.mensaje}</p>
           </div>
-          <div className="flex justify-end gap-4">
+
+          {/* COMENTARIOS */}
+          <ComentariosSection tareaId={tarea.id} token={token} />
+
+          <div className="flex justify-end gap-4 pt-2 border-t">
             <Button
               variant="outline"
               size="icon"
