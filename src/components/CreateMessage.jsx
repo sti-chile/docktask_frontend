@@ -20,6 +20,14 @@ const CreateMessage = ({ token }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const debounceRef = useRef(null);
 
+  const [formData, setFormData] = useState({
+    nombre: '',
+    mensaje: '',
+    estado: 'pendiente',
+    project_id: projectId || null,
+    expiration_date: ''
+  });
+
   // Detectar URLs en el campo mensaje con debounce de 1s
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -29,14 +37,6 @@ const CreateMessage = ({ token }) => {
     }, 600);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [formData.mensaje]);
-
-  const [formData, setFormData] = useState({
-    nombre: '',
-    mensaje: '',
-    estado: 'pendiente',
-    project_id: projectId || null,
-    expiration_date: ''
-  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
