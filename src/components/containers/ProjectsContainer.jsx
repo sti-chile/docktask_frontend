@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useProjectQuery } from '../../hooks/useProjectQuery';
 import { toast } from 'react-toastify';
 import ProjectsView from '../views/ProjectsView';
 
 const ProjectsContainer = ({ token }) => {
   const navigate = useNavigate();
-  const { proyectos = [], isLoading, error, eliminarProyecto, actualizarProyecto } = useProjectQuery(token);
+  const [searchParams] = useSearchParams();
+  const workspaceId = searchParams.get('workspace_id')
+    ? parseInt(searchParams.get('workspace_id'))
+    : null;
+
+  const { proyectos = [], isLoading, error, eliminarProyecto, actualizarProyecto } = useProjectQuery(token, workspaceId);
   const [proyectoEditando, setProyectoEditando] = useState(null);
 
   // Efecto para manejar errores
@@ -52,4 +57,4 @@ const ProjectsContainer = ({ token }) => {
   );
 };
 
-export default ProjectsContainer; 
+export default ProjectsContainer;

@@ -62,7 +62,7 @@ const ProjectsView = ({
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Mis Proyectos</h1>
-          <p className="text-gray-500 mt-1">Gestiona tus proyectos y sus mensajes</p>
+          <p className="text-gray-500 mt-1">Gestiona tus proyectos y sus tareas</p>
         </div>
         <Button onClick={onCreateClick} className="flex items-center gap-2">
           <PlusIcon className="h-5 w-5" />
@@ -77,7 +77,7 @@ const ProjectsView = ({
               <PlusIcon className="h-8 w-8 text-blue-500" />
             </div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">No tienes proyectos creados</h3>
-            <p className="text-gray-500 mb-6">Comienza creando tu primer proyecto para organizar tus mensajes</p>
+            <p className="text-gray-500 mb-6">Comienza creando tu primer proyecto para organizar tus tareas</p>
             <Button onClick={onCreateClick} size="lg">
               Crear mi primer proyecto
             </Button>
