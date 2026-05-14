@@ -12,6 +12,7 @@ import {
 } from '@heroicons/react/24/outline/index.js';
 import { useTauri } from '../hooks/useTauri';
 import { useAuth } from '@/context/AuthContext';
+import InvitacionesBell from './InvitacionesBell';
 
 // ─────────────────────────────────────────────
 //  LINKS DE NAVEGACIÓN
@@ -81,6 +82,7 @@ const Navbar = ({ token, onLogout }) => {
                     <span className="font-semibold">{label}</span>
                   </Link>
                 ))}
+                <InvitacionesBell token={token} />
                 <button
                   onClick={handleLogout}
                   className="flex items-center text-gray-800 hover:text-red-600 transition-colors duration-200 cerrar-sesion-btn"
