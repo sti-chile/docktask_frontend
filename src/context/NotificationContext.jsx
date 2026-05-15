@@ -37,7 +37,6 @@ export const NotificationProvider = ({ children }) => {
 
     const socket = io(API_URL, {
       auth: { token },
-      query: { token },
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
