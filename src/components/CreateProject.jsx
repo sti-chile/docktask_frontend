@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useProjectQuery } from '../hooks/useProjectQuery';
 import { jwtDecode } from 'jwt-decode';
 
 const CreateProject = ({ token }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const workspaceId = searchParams.get('workspace_id') ? parseInt(searchParams.get('workspace_id')) : null;
   const { crearProyecto } = useProjectQuery(token);
   const [formData, setFormData] = useState({
     nombre: '',
@@ -30,9 +32,10 @@ const CreateProject = ({ token }) => {
       const formDataOwner = {
         ...formData,
         owner_id,
+        ...(workspaceId ? { workspace_id: workspaceId } : {}),
       };
       await crearProyecto.mutateAsync(formDataOwner);
-      navigate('/mis-proyectos');
+      navigate(workspaceId ? `/mis-proyectos?workspace_id=${workspaceId}` : '/mis-proyectos');
     } catch (error) {
       console.error('Error al crear el proyecto:', error);
     } finally {
@@ -81,7 +84,7 @@ const CreateProject = ({ token }) => {
           <div className="flex justify-end space-x-4">
             <button
               type="button"
-              onClick={() => navigate('/mis-proyectos')}
+              onClick={() => navigate(workspaceId ? `/mis-proyectos?workspace_id=${workspaceId}` : '/mis-proyectos')}
               className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200"
             >
               Cancelar

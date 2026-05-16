@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  BellIcon,
+  InboxIcon,
   CheckCircleIcon,
   XCircleIcon,
   UserGroupIcon,
@@ -13,33 +13,41 @@ const InvitacionesBell = ({ token }) => {
   const [invitaciones, setInvitaciones] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState(null);
-  const { getPendientes, aceptar, rechazar } = useInvitacionesQuery(token);
-
-  const cargar = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const data = await getPendientes();
-      setInvitaciones(Array.isArray(data) ? data : []);
-    } catch {
-      setInvitaciones([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, getPendientes]);
+  const api = useInvitacionesQuery(token);
+  const apiRef = useRef(api);
+  useEffect(() => { apiRef.current = api; });
 
   useEffect(() => {
+    if (!token) return;
+    const cargar = async () => {
+      setLoading(true);
+      try {
+        const data = await apiRef.current.getPendientes();
+        setInvitaciones(Array.isArray(data) ? data : []);
+      } catch {
+        setInvitaciones([]);
+      } finally {
+        setLoading(false);
+      }
+    };
     cargar();
-    const interval = setInterval(cargar, 30000); // poll cada 30s
+    const interval = setInterval(cargar, 30000);
     return () => clearInterval(interval);
-  }, [cargar]);
+  }, [token]);
+
+  const recargar = async () => {
+    try {
+      const data = await apiRef.current.getPendientes();
+      setInvitaciones(Array.isArray(data) ? data : []);
+    } catch {}
+  };
 
   const handleAceptar = async (id) => {
     try {
-      await aceptar(id);
+      await apiRef.current.aceptar(id);
       setMensaje({ tipo: 'exito', texto: 'Invitación aceptada' });
-      cargar();
-    } catch (e) {
+      recargar();
+    } catch {
       setMensaje({ tipo: 'error', texto: 'Error al aceptar invitación' });
     }
     setTimeout(() => setMensaje(null), 3000);
@@ -47,10 +55,10 @@ const InvitacionesBell = ({ token }) => {
 
   const handleRechazar = async (id) => {
     try {
-      await rechazar(id);
+      await apiRef.current.rechazar(id);
       setMensaje({ tipo: 'info', texto: 'Invitación rechazada' });
-      cargar();
-    } catch (e) {
+      recargar();
+    } catch {
       setMensaje({ tipo: 'error', texto: 'Error al rechazar invitación' });
     }
     setTimeout(() => setMensaje(null), 3000);
@@ -67,7 +75,7 @@ const InvitacionesBell = ({ token }) => {
         className="relative p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-100 transition-colors"
         title="Invitaciones"
       >
-        <BellIcon className="h-5 w-5" />
+        <InboxIcon className="h-5 w-5" />
         {count > 0 && (
           <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
             {count > 9 ? '9+' : count}

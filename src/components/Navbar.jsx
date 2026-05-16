@@ -13,6 +13,7 @@ import {
 import { useTauri } from '../hooks/useTauri';
 import { useAuth } from '@/context/AuthContext';
 import InvitacionesBell from './InvitacionesBell';
+import NotificacionesBell from './NotificacionesBell';
 
 // ─────────────────────────────────────────────
 //  LINKS DE NAVEGACIÓN
@@ -82,6 +83,7 @@ const Navbar = ({ token, onLogout }) => {
                     <span className="font-semibold">{label}</span>
                   </Link>
                 ))}
+                <NotificacionesBell token={token} />
                 <InvitacionesBell token={token} />
                 <button
                   onClick={handleLogout}
