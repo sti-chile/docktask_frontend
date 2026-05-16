@@ -85,6 +85,7 @@ const Navbar = ({ token, onLogout }) => {
                 ))}
                 <NotificacionesBell token={token} />
                 <InvitacionesBell token={token} />
+                <NotificacionesBell />
                 <button
                   onClick={handleLogout}
                   className="flex items-center text-gray-800 hover:text-red-600 transition-colors duration-200 cerrar-sesion-btn"
