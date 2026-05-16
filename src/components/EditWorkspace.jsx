@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useWorkspaceQuery } from '../hooks/useWorkspaceQuery';
+import InvitarMiembros from './InvitarMiembros';
 
 const EditWorkspace = ({ token }) => {
   const navigate = useNavigate();
@@ -102,19 +103,7 @@ const EditWorkspace = ({ token }) => {
             </select>
           </div>
 
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="is_shared"
-              name="is_shared"
-              checked={formData.is_shared}
-              onChange={handleChange}
-              className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-            />
-            <label htmlFor="is_shared" className="text-sm font-medium text-gray-700">
-              Compartir con otros usuarios
-            </label>
-          </div>
+          <InvitarMiembros workspaceId={Number(id)} token={token} />
 
           <div className="flex justify-end space-x-4">
             <button
