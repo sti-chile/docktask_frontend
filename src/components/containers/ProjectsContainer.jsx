@@ -37,7 +37,7 @@ const ProjectsContainer = ({ token }) => {
   };
 
   const handleCreateClick = () => {
-    navigate('/crear-proyecto');
+    navigate(workspaceId ? `/crear-proyecto?workspace_id=${workspaceId}` : '/crear-proyecto');
   };
 
   const handleRetry = () => {

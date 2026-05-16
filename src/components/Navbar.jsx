@@ -83,6 +83,7 @@ const Navbar = ({ token, onLogout }) => {
                     <span className="font-semibold">{label}</span>
                   </Link>
                 ))}
+                <NotificacionesBell token={token} />
                 <InvitacionesBell token={token} />
                 <NotificacionesBell />
                 <button

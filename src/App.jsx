@@ -29,6 +29,7 @@ import GanttBoard from './components/GanttBoard';
 import WorkspacesContainer from './components/containers/WorkspacesContainer';
 import CreateWorkspace from './components/CreateWorkspace';
 import EditWorkspace from './components/EditWorkspace';
+import WorkspaceSidebar from './components/WorkspaceSidebar';
 import MusicPlayer from './components/music/MusicPlayer.jsx';
 import MusicLibrary from './components/music/MusicLibrary.jsx';
 import UploadPage from './components/music/UploadPage.jsx';
@@ -63,7 +64,7 @@ function App() {
 
   return (
     <MusicProvider>
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Splash screen — se muestra antes del login, una vez por sesión */}
       {showSplash && (
         <SplashScreen
@@ -76,11 +77,15 @@ function App() {
 
       <Navbar token={token} onLogout={handleLogout} />
 
-      <main
-        className={`flex justify-center items-center container mx-auto px-4 py-8
-          ${isMobile && token ? 'pb-20' : ''}
-          ${isMobile ? 'pt-safe' : ''}`}
-      >
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar de workspaces — solo desktop/web, no APK */}
+        {token && !isMobile && <WorkspaceSidebar token={token} />}
+
+        <main
+          className={`flex-1 overflow-y-auto px-4 py-8
+            ${isMobile && token ? 'pb-20' : ''}
+            ${isMobile ? 'pt-safe' : ''}`}
+        >
         <Routes>
           <Route
             path="/"
@@ -133,7 +138,8 @@ function App() {
             </>
           )}
         </Routes>
-      </main>
+        </main>
+      </div>
 
       {/* Auto-updater — solo desktop, banner no intrusivo */}
       <UpdateChecker />

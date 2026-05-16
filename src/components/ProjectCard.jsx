@@ -80,7 +80,7 @@ const ProjectCard = ({ proyecto, onDelete, onEdit }) => {
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <ChatBubbleLeftIcon className="h-4 w-4" />
-            <span>{proyecto.total_mensajes || 0} tareas</span>
+            <span>{proyecto.total_tareas ?? 0} tareas</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <CalendarIcon className="h-4 w-4" />

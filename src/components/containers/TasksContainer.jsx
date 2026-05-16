@@ -48,7 +48,7 @@ const TasksContainer = ({ token, proyectoId = null }) => {
   };
 
   const handleCreateClick = () => {
-    navigate('/create');
+    navigate(proyectoId ? `/create?project_id=${proyectoId}` : '/create');
   };
 
   const handleRetry = () => {

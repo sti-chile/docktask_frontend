@@ -14,6 +14,9 @@ export const useProjectQuery = (token, workspaceId = null) => {
     queryFn: async () => {
       try {
         const proyectos = await http.get(`/api/v1/proyectos${queryParams}`);
+        if (workspaceId) {
+          return proyectos || [];
+        }
         const user = jwtDecode(token);
         const owner_id = user.sub;
         return (proyectos || []).filter(proyecto => String(proyecto.owner_id) === String(owner_id));

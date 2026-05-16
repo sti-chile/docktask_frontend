@@ -1,138 +1,170 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { BellIcon, BellAlertIcon } from '@heroicons/react/24/outline/index.js';
-import { useNotificaciones } from '../context/NotificationContext';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  BellIcon,
+  CheckIcon,
+  ClockIcon,
+  PencilSquareIcon,
+  ChatBubbleLeftEllipsisIcon,
+  InformationCircleIcon,
+} from '@heroicons/react/24/outline/index.js';
+import { XMarkIcon } from '@heroicons/react/24/solid/index.js';
+import { useNotificacionesQuery } from '../hooks/useNotificacionesQuery';
 
-const ICONO_TIPO = {
-  vencimiento: '⏰',
-  edicion: '✏️',
-  inactividad: '💤',
-  comentario: '💬',
-  invitacion: '📨',
+const TIPO_CONFIG = {
+  tarea_editada:    { icon: PencilSquareIcon,              color: 'text-blue-500',   bg: 'bg-blue-50' },
+  vencimiento:      { icon: ClockIcon,                     color: 'text-orange-500', bg: 'bg-orange-50' },
+  tarea_comentada:  { icon: ChatBubbleLeftEllipsisIcon,    color: 'text-green-500',  bg: 'bg-green-50' },
+  default:          { icon: InformationCircleIcon,         color: 'text-gray-400',   bg: 'bg-gray-50' },
 };
 
-const COLOR_BORDE_TIPO = {
-  vencimiento: 'border-l-orange-400',
-  edicion: 'border-l-blue-400',
-  inactividad: 'border-l-gray-400',
-  comentario: 'border-l-green-400',
-  invitacion: 'border-l-purple-400',
-};
+const tipoConfig = (tipo) => TIPO_CONFIG[tipo] || TIPO_CONFIG.default;
 
-const NotificacionesBell = () => {
+const NotificacionesBell = ({ token }) => {
+  const api = useNotificacionesQuery(token);
+  const apiRef = useRef(api);
+  useEffect(() => { apiRef.current = api; });
+
   const [open, setOpen] = useState(false);
-  const {
-    notificaciones,
-    noLeidas,
-    cargarNotificaciones,
-    marcarLeida,
-    marcarTodasLeidas,
-  } = useNotificaciones();
+  const [notificaciones, setNotificaciones] = useState([]);
+  const [noLeidas, setNoLeidas] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const cargar = async () => {
+    if (!token) return;
+    try {
+      const data = await apiRef.current.getNotificaciones({ limit: 20 });
+      setNotificaciones(data?.notificaciones ?? []);
+      setNoLeidas(data?.total_no_leidas ?? 0);
+    } catch {
+      // silencioso
+    }
+  };
 
   useEffect(() => {
-    if (open) {
-      cargarNotificaciones();
-    }
-  }, [open, cargarNotificaciones]);
+    cargar();
+    const interval = setInterval(cargar, 30000);
+    return () => clearInterval(interval);
+  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleMarcarLeida = useCallback(async (e, id) => {
-    e.stopPropagation();
-    await marcarLeida(id);
-  }, [marcarLeida]);
+  // Cerrar al click fuera
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
-  const handleMarcarTodas = useCallback(async (e) => {
+  const handleMarcarLeida = async (id, e) => {
     e.stopPropagation();
-    await marcarTodasLeidas();
-  }, [marcarTodasLeidas]);
+    try {
+      await apiRef.current.marcarLeida(id);
+      setNotificaciones((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, leida: true } : n))
+      );
+      setNoLeidas((c) => Math.max(0, c - 1));
+    } catch {}
+  };
+
+  const handleMarcarTodas = async () => {
+    try {
+      await apiRef.current.marcarTodasLeidas();
+      setNotificaciones((prev) => prev.map((n) => ({ ...n, leida: true })));
+      setNoLeidas(0);
+    } catch {}
+  };
+
+  const formatTiempo = (iso) => {
+    const diff = Date.now() - new Date(iso).getTime();
+    const min = Math.floor(diff / 60000);
+    if (min < 1) return 'Ahora';
+    if (min < 60) return `Hace ${min} min`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `Hace ${h}h`;
+    return `Hace ${Math.floor(h / 24)}d`;
+  };
 
   return (
-    <div className="relative">
-      {/* Bell */}
+    <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => setOpen(!open)}
-        className="relative p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-100 transition-colors"
+        onClick={() => setOpen((o) => !o)}
+        className="relative p-2 rounded-md text-gray-600 hover:text-indigo-600 hover:bg-gray-100 transition-colors"
         title="Notificaciones"
       >
-        {noLeidas > 0 ? (
-          <BellAlertIcon className="h-5 w-5 text-amber-500" />
-        ) : (
-          <BellIcon className="h-5 w-5" />
-        )}
+        <BellIcon className="h-5 w-5" />
         {noLeidas > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-            {noLeidas > 99 ? '99+' : noLeidas}
+          <span className="absolute -top-0.5 -right-0.5 bg-indigo-600 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+            {noLeidas > 9 ? '9+' : noLeidas}
           </span>
         )}
       </button>
 
-      {/* Dropdown */}
       {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+        <div className="absolute right-0 top-full mt-1 z-50 w-80 bg-white rounded-lg shadow-lg border border-gray-200 max-h-[420px] flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
+            <h3 className="font-semibold text-gray-800 text-sm">
+              Notificaciones {noLeidas > 0 && <span className="text-indigo-600">({noLeidas})</span>}
+            </h3>
+            {noLeidas > 0 && (
+              <button
+                onClick={handleMarcarTodas}
+                className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+              >
+                <CheckIcon className="h-3.5 w-3.5" />
+                Marcar todas
+              </button>
+            )}
+          </div>
 
-          <div className="absolute right-0 top-full mt-1 z-50 w-80 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
-            {/* Header */}
-            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-semibold text-gray-800 text-sm">
-                Notificaciones
-              </h3>
-              {noLeidas > 0 && (
-                <button
-                  onClick={handleMarcarTodas}
-                  className="text-xs text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Marcar todas leídas
-                </button>
-              )}
-            </div>
-
-            {/* Lista */}
+          {/* Lista */}
+          <div className="overflow-y-auto flex-1">
             {notificaciones.length === 0 && (
               <div className="px-4 py-8 text-center text-gray-400 text-sm">
                 Sin notificaciones
               </div>
             )}
 
-            {notificaciones.map((n) => (
-              <div
-                key={n.id}
-                className={`px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 ${
-                  n.leida ? 'border-l-transparent' : COLOR_BORDE_TIPO[n.tipo] || 'border-l-blue-400'
-                } ${!n.leida ? 'bg-blue-50/30' : ''}`}
-                onClick={() => !n.leida && marcarLeida(n.id)}
-              >
-                <div className="flex items-start gap-2">
-                  <span className="text-lg mt-0.5 flex-shrink-0">
-                    {ICONO_TIPO[n.tipo] || '🔔'}
-                  </span>
+            {notificaciones.map((n) => {
+              const { icon: Icon, color, bg } = tipoConfig(n.tipo);
+              return (
+                <div
+                  key={n.id}
+                  className={`px-4 py-3 border-b border-gray-50 last:border-0 flex items-start gap-3 transition-colors ${
+                    n.leida ? 'bg-white' : 'bg-indigo-50/40'
+                  }`}
+                >
+                  <div className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${bg}`}>
+                    <Icon className={`h-4 w-4 ${color}`} />
+                  </div>
+
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm ${n.leida ? 'text-gray-600' : 'text-gray-900 font-medium'}`}>
+                    <p className={`text-sm font-medium ${n.leida ? 'text-gray-600' : 'text-gray-900'}`}>
                       {n.titulo}
                     </p>
-                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
-                      {n.mensaje}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {new Date(n.created_at).toLocaleDateString('es-CL', {
-                        day: 'numeric',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
+                    {n.mensaje && (
+                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.mensaje}</p>
+                    )}
+                    <p className="text-[11px] text-gray-400 mt-1">{formatTiempo(n.created_at)}</p>
                   </div>
+
                   {!n.leida && (
                     <button
-                      onClick={(e) => handleMarcarLeida(e, n.id)}
-                      className="flex-shrink-0 w-2 h-2 mt-1.5 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors"
+                      onClick={(e) => handleMarcarLeida(n.id, e)}
+                      className="flex-shrink-0 text-gray-300 hover:text-indigo-500 transition-colors mt-0.5"
                       title="Marcar como leída"
-                    />
+                    >
+                      <XMarkIcon className="h-4 w-4" />
+                    </button>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
