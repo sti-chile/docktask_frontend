@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Routes,
   Route,
@@ -7,18 +7,19 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { saveTauriAuthToken, clearTauriAuthToken, useDeepLink, useTauri } from "./hooks/useTauri";
+import { useAuth } from "@/context/AuthContext";
 import SplashScreen from "./components/SplashScreen.jsx";
 import UpdateChecker from "./components/UpdateChecker.jsx";
 import LoginForm from "./components/LoginForms.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import RegisterForm from "./components/RegisterForm.jsx";
-import MessagesContainer from "./components/containers/MessagesContainer";
-import EditMessage from "./components/EditMessages.jsx";
+import TasksContainer from "./components/containers/TasksContainer";
+import EditTask from "./components/EditTasks.jsx";
 import EditUsers from "./components/EditUsers.jsx";
 import Navbar from "./components/Navbar.jsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import CreateMessage from './components/CreateMessage';
+import CreateTask from './components/CreateTask';
 import Dashboard from './components/Dashboard';
 import ProjectsContainer from './components/containers/ProjectsContainer';
 import CreateProject from './components/CreateProject';
@@ -28,6 +29,7 @@ import GanttBoard from './components/GanttBoard';
 import WorkspacesContainer from './components/containers/WorkspacesContainer';
 import CreateWorkspace from './components/CreateWorkspace';
 import EditWorkspace from './components/EditWorkspace';
+import WorkspaceSidebar from './components/WorkspaceSidebar';
 import MusicPlayer from './components/music/MusicPlayer.jsx';
 import MusicLibrary from './components/music/MusicLibrary.jsx';
 import UploadPage from './components/music/UploadPage.jsx';
@@ -38,42 +40,31 @@ import { MusicProvider } from './context/MusicContext.jsx';
 function App() {
   const navigate = useNavigate();
   const { isMobile } = useTauri();
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
+  const { token, user, login, logout } = useAuth();
 
   // Mostrar splash solo si no hay sesión activa y no se vio en esta sesión
-  const [showSplash, setShowSplash] = useState(
-    () => !localStorage.getItem("token") && !sessionStorage.getItem("splashSeen")
+  const [showSplash, setShowSplash] = React.useState(
+    () => !token && !sessionStorage.getItem("splashSeen")
   );
 
   // Deep links — notificación → navega a la ruta correcta
   useDeepLink(navigate);
 
-  const handleLogin = (token, user) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-    setToken(token);
-    setUser(user);
+  const handleLogin = (newToken, newUser) => {
+    login(newToken, newUser);
     // Persistir token en Tauri Store para que el sync worker lo lea
-    saveTauriAuthToken(token);
+    saveTauriAuthToken(newToken);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
+    logout();
     // Limpiar token del Tauri Store
     clearTauriAuthToken();
   };
-  const ultimosMensajes = [
-    { id: 1, nombre: "Soporte conexión caja", estado: "pendiente", updated_at: new Date() },
-    { id: 2, nombre: "Instalación balanceadora", estado: "completado", updated_at: new Date() },
-  ];
 
   return (
     <MusicProvider>
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Splash screen — se muestra antes del login, una vez por sesión */}
       {showSplash && (
         <SplashScreen
@@ -86,11 +77,15 @@ function App() {
 
       <Navbar token={token} onLogout={handleLogout} />
 
-      <main
-        className={`flex justify-center items-center container mx-auto px-4 py-8
-          ${isMobile && token ? 'pb-20' : ''}
-          ${isMobile ? 'pt-safe' : ''}`}
-      >
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar de workspaces — solo desktop/web, no APK */}
+        {token && !isMobile && <WorkspaceSidebar token={token} />}
+
+        <main
+          className={`flex-1 overflow-y-auto px-4 py-8
+            ${isMobile && token ? 'pb-20' : ''}
+            ${isMobile ? 'pt-safe' : ''}`}
+        >
         <Routes>
           <Route
             path="/"
@@ -100,25 +95,24 @@ function App() {
                   token={token}
                   userData={user}
                   isLoading={false}
-                  ultimosMensajes={ultimosMensajes}
-                  onCrearMensaje={() => navigate('/create')}
-                  onCrearProyecto={() => navigate('/crear-proyecto')}
-                  onVerTodosMensajes={() => navigate('/mis-mensajes')}
+                  onVerTodasLasTareas={() => navigate('/mis-tareas')}
                 />
               </PrivateRoute>
             }
           />
 
-
           <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
           <Route path="/register" element={<RegisterForm />} />
-          {/* Ruta /gantt suelta redirige a proyectos */}
+          {/* Redirecciones de rutas antiguas */}
           <Route path="/gantt" element={<Navigate to="/mis-proyectos" replace />} />
+          <Route path="/mis-mensajes" element={<Navigate to="/mis-tareas" replace />} />
+          <Route path="/mensajes" element={<Navigate to="/mis-tareas" replace />} />
           {token && (
             <>
-              <Route path="/mis-mensajes" element={<PrivateRoute token={token}><MessagesContainer token={token} /></PrivateRoute>} />
-              <Route path="/create" element={<PrivateRoute token={token}><CreateMessage token={token} /></PrivateRoute>} />
-              <Route path="/edit/:id" element={<PrivateRoute token={token}><EditMessage token={token} /></PrivateRoute>} />
+              <Route path="/mis-tareas" element={<PrivateRoute token={token}><TasksContainer token={token} /></PrivateRoute>} />
+              <Route path="/mis-proyectos/:id/tareas" element={<PrivateRoute token={token}><ProyectoTareasWrapper /></PrivateRoute>} />
+              <Route path="/create" element={<PrivateRoute token={token}><CreateTask token={token} /></PrivateRoute>} />
+              <Route path="/edit/:id" element={<PrivateRoute token={token}><EditTask token={token} /></PrivateRoute>} />
               <Route path="/mis-proyectos" element={<PrivateRoute token={token}><ProjectsContainer token={token} /></PrivateRoute>} />
               <Route path="/crear-proyecto" element={<PrivateRoute token={token}><CreateProject token={token} /></PrivateRoute>} />
               <Route path="/editar-proyecto/:id" element={<PrivateRoute token={token}><EditProject token={token} /></PrivateRoute>} />
@@ -144,7 +138,8 @@ function App() {
             </>
           )}
         </Routes>
-      </main>
+        </main>
+      </div>
 
       {/* Auto-updater — solo desktop, banner no intrusivo */}
       <UpdateChecker />
@@ -175,7 +170,26 @@ function App() {
 // Wrapper para extraer :id de la URL y pasarlo como prop a GanttBoard
 function GanttWrapper() {
   const { id } = useParams();
-  return <GanttBoard proyectoId={id} />;
+  const { token } = useAuth();
+  return <GanttBoard proyectoId={id} token={token} />;
+}
+
+// Wrapper para tareas filtradas por proyecto
+function ProyectoTareasWrapper() {
+  const { id } = useParams();
+  const { token } = useAuth();
+  const navigate = useNavigate();
+  return (
+    <div>
+      <button
+        onClick={() => navigate('/mis-proyectos')}
+        className="ml-6 mt-4 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+      >
+        ← Volver a proyectos
+      </button>
+      <TasksContainer token={token} proyectoId={parseInt(id)} />
+    </div>
+  );
 }
 
 export default App;

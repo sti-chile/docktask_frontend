@@ -60,11 +60,7 @@ const LoginForm = ({ onLogin }) => {
         apellido: userData.apellido
       };
       
-      // Guardar en localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      // Notificar éxito
+      // Notificar éxito (token manejado por AuthContext vía onLogin)
       toast.success('¡Login exitoso!');
 
       // Limpiar formulario
@@ -77,7 +73,7 @@ const LoginForm = ({ onLogin }) => {
       }
 
       // Redirigir según el rol
-      const redirectPath = user.rol === 'admin' ? '/admin' : '/mis-mensajes';
+      const redirectPath = user.rol === 'admin' ? '/admin' : '/mis-tareas';
       navigate(redirectPath);
 
     } catch (error) {

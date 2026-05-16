@@ -3,15 +3,20 @@ import { toast } from 'react-toastify';
 import { createHttpClient } from '../lib/httpClient';
 import { jwtDecode } from 'jwt-decode';
 
-export const useProjectQuery = (token) => {
+export const useProjectQuery = (token, workspaceId = null) => {
   const http = createHttpClient(token);
   const qc = useQueryClient();
 
+  const queryParams = workspaceId ? `?workspace_id=${workspaceId}` : '';
+
   const { data: proyectos = [], isLoading, error } = useQuery({
-    queryKey: ['proyectos'],
+    queryKey: ['proyectos', workspaceId],
     queryFn: async () => {
       try {
-        const proyectos = await http.get('/api/v1/proyectos');
+        const proyectos = await http.get(`/api/v1/proyectos${queryParams}`);
+        if (workspaceId) {
+          return proyectos || [];
+        }
         const user = jwtDecode(token);
         const owner_id = user.sub;
         return (proyectos || []).filter(proyecto => String(proyecto.owner_id) === String(owner_id));

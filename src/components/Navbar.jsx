@@ -11,6 +11,9 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline/index.js';
 import { useTauri } from '../hooks/useTauri';
+import { useAuth } from '@/context/AuthContext';
+import InvitacionesBell from './InvitacionesBell';
+import NotificacionesBell from './NotificacionesBell';
 
 // ─────────────────────────────────────────────
 //  LINKS DE NAVEGACIÓN
@@ -36,7 +39,7 @@ const Navbar = ({ token, onLogout }) => {
   const { isMobile } = useTauri();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const { user } = useAuth();
   const links = NAV_LINKS(user);
 
   const handleLogout = () => {
@@ -80,6 +83,9 @@ const Navbar = ({ token, onLogout }) => {
                     <span className="font-semibold">{label}</span>
                   </Link>
                 ))}
+                <NotificacionesBell token={token} />
+                <InvitacionesBell token={token} />
+                <NotificacionesBell />
                 <button
                   onClick={handleLogout}
                   className="flex items-center text-gray-800 hover:text-red-600 transition-colors duration-200 cerrar-sesion-btn"

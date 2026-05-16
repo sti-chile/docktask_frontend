@@ -25,15 +25,15 @@ const TourTutorial = () => {
           element: '.dashboard-title',
           popover: {
             title: 'Panel Principal',
-            description: 'Aquí puedes ver un resumen de tus mensajes y estadísticas importantes.',
+            description: 'Aquí puedes ver un resumen de tus tareas y estadísticas importantes.',
             position: 'bottom'
           }
         },
         {
           element: '.crear-mensaje-btn',
           popover: {
-            title: 'Crear Mensaje',
-            description: 'Haz clic aquí para crear un nuevo mensaje.',
+            title: 'Crear Tarea',
+            description: 'Haz clic aquí para crear una nueva tarea.',
             position: 'left'
           }
         },
@@ -41,23 +41,23 @@ const TourTutorial = () => {
           element: '.stats-cards',
           popover: {
             title: 'Estadísticas',
-            description: 'Estas tarjetas muestran el estado actual de tus mensajes.',
+            description: 'Estas tarjetas muestran el estado actual de tus tareas.',
             position: 'top'
           }
         },
         {
           element: '.ultimos-mensajes',
           popover: {
-            title: 'Últimos Mensajes',
-            description: 'Visualiza los últimos mensajes creados o modificados.',
+            title: 'Últimas Tareas',
+            description: 'Visualiza las últimas tareas creadas o modificadas.',
             position: 'top'
           }
         },
         {
           element: '.ver-mensajes-btn',
           popover: {
-            title: 'Ver Todos',
-            description: 'Navega a la vista completa de mensajes.',
+            title: 'Ver Todas',
+            description: 'Navega a la vista completa de tareas.',
             position: 'top'
           }
         },
@@ -80,8 +80,8 @@ const TourTutorial = () => {
         {
           element: '.link-ver-mensajes-btn',
           popover: {
-            title: 'Ver Mensajes',
-            description: 'Navega a la vista de mensajes.',
+            title: 'Ver Tareas',
+            description: 'Navega a la vista de tareas.',
             position: 'top'
           }
         }
@@ -89,7 +89,7 @@ const TourTutorial = () => {
     });
 
     setTimeout(() => {
-      tour.drive(); // <--- método correcto para iniciar
+      tour.drive();
     }, 500);
 };
 
@@ -104,8 +104,6 @@ return (
         <QuestionMarkCircleIcon className="h-6 w-6" />
       </button>
     )}
-
-    {/* Mostrar el botón sólo después de que el componente esté montado */}
   </>
 );
 };

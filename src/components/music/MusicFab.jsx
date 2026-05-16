@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { MusicalNoteIcon } from '@heroicons/react/24/outline/index.js';
 
 /**
  * MusicFab - Floating Action Button estilo Winamp/Audius para acceder al reproductor de música.
@@ -28,16 +29,10 @@ const MusicFab = () => {
       title="Abrir reproductor de música"
       aria-label="Abrir reproductor de música"
     >
-      {/* Icono de nota musical con gradiente */}
+      {/* Icono de nota musical outline */}
       <div className="relative">
         <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center">
-          <svg 
-            className="w-5 h-5 text-white" 
-            fill="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6zm-2 16c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
-          </svg>
+          <MusicalNoteIcon className="w-5 h-5 text-white" strokeWidth={1.5} />
         </div>
         {/* Anillo de actividad */}
         <div className={`absolute -inset-1 border-2 border-primary/30 rounded-full animate-ping ${isHovered ? 'opacity-100' : 'opacity-0'}`}></div>

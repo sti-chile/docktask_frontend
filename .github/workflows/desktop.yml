@@ -66,6 +66,19 @@ jobs:
         with:
           workspaces: 'src-tauri -> target'
 
+      # ── Fix macOS cargo PATH ──────────────────────────────────────
+      - name: Fix cargo PATH (macOS)
+        if: matrix.platform == 'macos'
+        shell: bash
+        run: |
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          cargo --version || {
+            echo '::warning title=macOS cargo fix::Cargo no disponible, reinstalando rustup...'
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+            cargo --version
+          }
+
       # ── Node / npm ────────────────────────────────────────────────
       - name: Setup Node.js
         uses: actions/setup-node@v4
