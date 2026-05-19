@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useWorkspaceQuery } from '../hooks/useWorkspaceQuery';
 import InvitarMiembros from './InvitarMiembros';
+import EmojiPicker from 'emoji-picker-react';
 
 const EditWorkspace = ({ token }) => {
   const navigate = useNavigate();
@@ -9,6 +10,19 @@ const EditWorkspace = ({ token }) => {
   const { workspaces, actualizarWorkspace } = useWorkspaceQuery(token);
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef(null);
+
+  // Cerrar picker al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target)) {
+        setShowEmojiPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const ws = workspaces.find((w) => String(w.id) === String(id));
@@ -16,6 +30,7 @@ const EditWorkspace = ({ token }) => {
       setFormData({
         nombre: ws.nombre || '',
         descripcion: ws.descripcion || '',
+        icono: ws.icono || null,
         is_shared: ws.is_shared || false,
         estado: ws.estado || 'activo',
       });
@@ -70,6 +85,46 @@ const EditWorkspace = ({ token }) => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
+          </div>
+
+          <div>
+            <label htmlFor="icono" className="block text-sm font-medium text-gray-700 mb-1">
+              Icono (emoji)
+            </label>
+            <div className="relative" ref={emojiPickerRef}>
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              >
+                {formData.icono ? (
+                  <span className="text-2xl">{formData.icono}</span>
+                ) : (
+                  <span className="text-gray-400">Seleccionar emoji</span>
+                )}
+              </button>
+              {formData.icono && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData((prev) => ({ ...prev, icono: null }));
+                  }}
+                  className="ml-2 text-sm text-red-500 hover:text-red-700"
+                >
+                  Quitar
+                </button>
+              )}
+              {showEmojiPicker && (
+                <div className="absolute z-50 mt-1">
+                  <EmojiPicker
+                    onEmojiClick={(emojiData) => {
+                      setFormData((prev) => ({ ...prev, icono: emojiData.emoji }));
+                      setShowEmojiPicker(false);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
