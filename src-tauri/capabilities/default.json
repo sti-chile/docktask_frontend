@@ -2,6 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "DockTask — permisos desktop (Linux, Windows, macOS)",
+<<<<<<< HEAD
   "platforms": ["linux", "windows", "macOS"],
   "windows": ["main"],
   "permissions": [
@@ -25,6 +26,7 @@
     "os:default",
     "os:allow-platform",
     "deep-link:default",
+<<<<<<< HEAD
     "deep-link:allow-get-current",
     "updater:default",
     "updater:allow-check",

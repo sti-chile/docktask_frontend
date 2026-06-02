@@ -20,11 +20,20 @@ export default function Sidebar() {
         <button
           key={ws.id}
           onClick={() => setActiveWorkspace(ws.id)}
-          className={`p-2 rounded-md text-left hover:bg-gray-800 ${
+          className={`flex items-center gap-2 p-2 rounded-md text-left hover:bg-gray-800 ${
             ws.id === activeWorkspace ? "bg-gray-800" : ""
           }`}
         >
-          {ws.name}
+          <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+            {ws.icono ? (
+              <span className="text-lg">{ws.icono}</span>
+            ) : (
+              <span className="workspace-initial text-xs font-bold bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center">
+                {(ws.nombre || ws.name || '?').charAt(0).toUpperCase()}
+              </span>
+            )}
+          </span>
+          <span className="truncate">{ws.nombre || ws.name}</span>
         </button>
       ))}
 

@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useTareasQuery } from '../hooks/useTareasQuery';
-import { useProjectQuery } from '../hooks/useProjectQuery';
-import EstadoSelect from './EstadoSelect';
-import LinkPreview from './LinkPreview';
-import { extractFirstUrl } from '../api/previewApi';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useTareasQuery } from "../hooks/useTareasQuery";
+import { useProjectQuery } from "../hooks/useProjectQuery";
+import EstadoSelect from "./EstadoSelect";
+import LinkPreview from "./LinkPreview";
+import { extractFirstUrl } from "../api/previewApi";
+import TaskToolbar from "./ui/TaskToolbar";
 
 const CreateTask = ({ token }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const projectId = searchParams.get('project_id');
+  const projectId = searchParams.get("project_id");
 
   const { crearTarea } = useTareasQuery(token);
   const { proyectos } = useProjectQuery(token);
@@ -19,13 +20,21 @@ const CreateTask = ({ token }) => {
   const [loading, setLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
   const debounceRef = useRef(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleSelectEmoji = (emoji) => {
+    setFormData((prev) => ({
+      ...prev,
+      descripcion: `${prev.descripcion || ""}${emoji}`,
+    }));
+  };
 
   const [formData, setFormData] = useState({
-    nombre: '',
-    descripcion: '',
-    estado: 'pendiente',
+    nombre: "",
+    descripcion: "",
+    estado: "pendiente",
     project_id: projectId || null,
-    expiration_date: ''
+    expiration_date: "",
   });
 
   // Detectar URLs en el campo descripcion con debounce
@@ -35,14 +44,16 @@ const CreateTask = ({ token }) => {
       const url = extractFirstUrl(formData.descripcion);
       setPreviewUrl(url);
     }, 600);
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, [formData.descripcion]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -52,7 +63,7 @@ const CreateTask = ({ token }) => {
 
     try {
       if (!formData.nombre.trim() || !formData.descripcion.trim()) {
-        toast.error('Por favor, complete todos los campos requeridos');
+        toast.error("Por favor, complete todos los campos requeridos");
         setLoading(false);
         return;
       }
@@ -61,14 +72,16 @@ const CreateTask = ({ token }) => {
         const expirationDate = new Date(formData.expiration_date);
         const now = new Date();
         if (expirationDate <= now) {
-          toast.error('La fecha de expiración debe ser futura');
+          toast.error("La fecha de expiración debe ser futura");
           setLoading(false);
           return;
         }
       }
 
       await crearTarea.mutateAsync(formData);
-      navigate(projectId ? `/mis-tareas?project_id=${projectId}` : '/mis-tareas');
+      navigate(
+        projectId ? `/mis-tareas?project_id=${projectId}` : "/mis-tareas",
+      );
     } catch (error) {
       // Error ya se muestra en el hook
     } finally {
@@ -81,21 +94,33 @@ const CreateTask = ({ token }) => {
       <div className="max-w-2xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">
-            {projectId ? 'Crear Tarea para el Proyecto' : 'Crear Nueva Tarea'}
+            {projectId ? "Crear Tarea para el Proyecto" : "Crear Nueva Tarea"}
           </h1>
           <button
-            onClick={() => navigate(projectId ? `/mis-tareas?project_id=${projectId}` : '/mis-tareas')}
+            onClick={() =>
+              navigate(
+                projectId
+                  ? `/mis-tareas?project_id=${projectId}`
+                  : "/mis-tareas",
+              )
+            }
             className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
           >
             Volver
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white shadow-md rounded-lg p-6"
+        >
           <div className="space-y-6">
             {/* Nombre de la tarea */}
             <div>
-              <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="nombre"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Nombre de la Tarea *
               </label>
               <input
@@ -109,10 +134,12 @@ const CreateTask = ({ token }) => {
                 placeholder="Ingrese el nombre de la tarea"
               />
             </div>
-
             {/* Descripción */}
             <div>
-              <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="descripcion"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Descripción *
               </label>
               <textarea
@@ -120,17 +147,21 @@ const CreateTask = ({ token }) => {
                 name="descripcion"
                 value={formData.descripcion}
                 onChange={handleChange}
+                onFocus={() => setIsEditing(true)}
                 required
                 rows="4"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ingrese la descripción de la tarea (puede incluir enlaces)"
               />
+              {isEditing && <TaskToolbar onSelectEmoji={handleSelectEmoji} />}
               {previewUrl && <LinkPreview url={previewUrl} token={token} />}
             </div>
-
             {!projectId && (
               <div>
-                <label htmlFor="project_id" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="project_id"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Proyecto
                 </label>
                 <select
@@ -141,7 +172,7 @@ const CreateTask = ({ token }) => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Seleccione un proyecto</option>
-                  {proyectos?.map(proyecto => (
+                  {proyectos?.map((proyecto) => (
                     <option key={proyecto.id} value={proyecto.id}>
                       {proyecto.nombre}
                     </option>
@@ -149,21 +180,19 @@ const CreateTask = ({ token }) => {
                 </select>
               </div>
             )}
-
             {/* Estado */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Estado
               </label>
-              <EstadoSelect
-                estado={formData.estado}
-                onChange={handleChange}
-              />
+              <EstadoSelect estado={formData.estado} onChange={handleChange} />
             </div>
-
             {/* Fecha de expiración */}
             <div>
-              <label htmlFor="expiration_date" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="expiration_date"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Fecha de Expiración
               </label>
               <input
@@ -175,12 +204,17 @@ const CreateTask = ({ token }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-
             {/* Botones */}
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
-                onClick={() => navigate(projectId ? `/mis-tareas?project_id=${projectId}` : '/mis-tareas')}
+                onClick={() =>
+                  navigate(
+                    projectId
+                      ? `/mis-tareas?project_id=${projectId}`
+                      : "/mis-tareas",
+                  )
+                }
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 Cancelar
@@ -189,10 +223,10 @@ const CreateTask = ({ token }) => {
                 type="submit"
                 disabled={loading}
                 className={`px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary ${
-                  loading ? 'opacity-50 cursor-not-allowed' : ''
+                  loading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {loading ? 'Creando...' : 'Crear Tarea'}
+                {loading ? "Creando..." : "Crear Tarea"}
               </button>
             </div>
           </div>
