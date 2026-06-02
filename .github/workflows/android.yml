@@ -8,11 +8,6 @@ on:
       - 'src-tauri/**'
       - 'package.json'
       - 'package-lock.json'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'src-tauri/**'
       - '.github/workflows/android.yml'
   workflow_dispatch:
 
@@ -132,7 +127,6 @@ jobs:
           $BUILD_TOOLS/zipalign -v -p 4 "$UNSIGNED" /tmp/docktask-aligned.apk
 
           # Firmar con apksigner
-          # Nota: PKCS12/JKS keystores requieren que key-pass = store-pass
           $BUILD_TOOLS/apksigner sign \
             --ks "$KEYSTORE_PATH" \
             --ks-key-alias "${{ secrets.ANDROID_KEY_ALIAS }}" \
