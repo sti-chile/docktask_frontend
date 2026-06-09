@@ -1,7 +1,7 @@
 // CycleList — lista de ciclos con barra de progreso y filtro por estado
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiCycles } from '../../api/cyclesApi';
+import { useCyclesQuery } from '../../hooks/useCyclesQuery';
 import CycleProgressBar from './CycleProgressBar';
 import { CycleStatusBadge } from './CycleStatusBadge';
 import { PlusIcon, FunnelIcon } from '@heroicons/react/24/outline';
@@ -15,66 +15,31 @@ const FILTERS = [
 
 const CycleList = ({ token, workspaceId }) => {
   const navigate = useNavigate();
-  const [cycles, setCycles] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
 
-  const fetchCycles = useCallback(async () => {
-    if (!token || !workspaceId) return;
-    setLoading(true);
-    try {
-      const params = filter ? { status: filter } : {};
-      const data = await apiCycles(token).list(workspaceId, params);
-      setCycles(data);
-    } catch {
-      setCycles([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, workspaceId, filter]);
-
-  useEffect(() => { fetchCycles(); }, [fetchCycles]);
+  const { cycles, isLoading, crearCycle, eliminarCycle, activarCycle, completarCycle } =
+    useCyclesQuery(token, workspaceId, { status: filter });
 
   const handleCreate = async () => {
     if (!newName.trim()) return;
-    try {
-      await apiCycles(token).create(workspaceId, { nombre: newName.trim() });
-      setNewName('');
-      setShowCreate(false);
-      fetchCycles();
-    } catch (e) {
-      console.error('Error creando ciclo:', e);
-    }
+    await crearCycle.mutateAsync({ nombre: newName.trim() });
+    setNewName('');
+    setShowCreate(false);
   };
 
   const handleActivate = async (cycleId) => {
-    try {
-      await apiCycles(token).activate(workspaceId, cycleId);
-      fetchCycles();
-    } catch (e) {
-      console.error('Error activando ciclo:', e);
-    }
+    await activarCycle.mutateAsync(cycleId);
   };
 
   const handleComplete = async (cycleId) => {
-    try {
-      await apiCycles(token).complete(workspaceId, cycleId);
-      fetchCycles();
-    } catch (e) {
-      console.error('Error completando ciclo:', e);
-    }
+    await completarCycle.mutateAsync(cycleId);
   };
 
   const handleDelete = async (cycleId, name) => {
     if (!window.confirm(`¿Eliminar el ciclo "${name}"?`)) return;
-    try {
-      await apiCycles(token).delete(workspaceId, cycleId);
-      fetchCycles();
-    } catch (e) {
-      console.error('Error eliminando ciclo:', e);
-    }
+    await eliminarCycle.mutateAsync(cycleId);
   };
 
   const formatDate = (d) => {
@@ -148,7 +113,7 @@ const CycleList = ({ token, workspaceId }) => {
       </div>
 
       {/* List */}
-      {loading ? (
+      {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse bg-gray-100 rounded-lg h-24" />

@@ -1,7 +1,7 @@
 // CycleDetail — vista de detalle de un ciclo con sus tareas
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiCycles } from '../../api/cyclesApi';
+import { useCyclesQuery } from '../../hooks/useCyclesQuery';
 import CycleProgressBar from './CycleProgressBar';
 import { CycleStatusBadge } from './CycleStatusBadge';
 import EstadoSelect from '../EstadoSelect';
@@ -10,79 +10,47 @@ import { createHttpClient } from '../../lib/httpClient';
 
 const CycleDetail = ({ token, workspaceId, cycleId }) => {
   const navigate = useNavigate();
-  const [cycle, setCycle] = useState(null);
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [editName, setEditName] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
 
-  const fetchData = useCallback(async () => {
-    if (!token || !workspaceId || !cycleId) return;
-    setLoading(true);
-    try {
-      const [cycleData, tasksData] = await Promise.all([
-        apiCycles(token).get(workspaceId, cycleId),
-        createHttpClient(token).get(`/api/v1/workspaces/${workspaceId}/tasks?cycle_id=${cycleId}`),
-      ]);
-      setCycle(cycleData);
-      setTasks(Array.isArray(tasksData) ? tasksData : tasksData.tasks || []);
-    } catch (e) {
-      console.error('Error fetching cycle detail:', e);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, workspaceId, cycleId]);
+  const {
+    cycle,
+    isCycleLoading,
+    cycleTasks,
+    actualizarCycle,
+    activarCycle,
+    completarCycle,
+    removerTarea,
+  } = useCyclesQuery(token, workspaceId, { cycleId });
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  const loading = isCycleLoading;
+  const tasks = cycleTasks;
 
   const handleStatusChange = async (taskId, newStatus) => {
     try {
       await createHttpClient(token).patch(`/api/v1/tareas/${taskId}`, { estado: newStatus });
-      setTasks((prev) =>
-        prev.map((t) => (t.id === taskId ? { ...t, estado: newStatus } : t))
-      );
     } catch (e) {
       console.error('Error updating task status:', e);
     }
   };
 
   const handleRemoveTask = async (taskId) => {
-    try {
-      await apiCycles(token).removeTask(taskId);
-      setTasks((prev) => prev.filter((t) => t.id !== taskId));
-    } catch (e) {
-      console.error('Error removing task from cycle:', e);
-    }
+    await removerTarea.mutateAsync(taskId);
   };
 
   const handleActivate = async () => {
-    try {
-      const res = await apiCycles(token).activate(workspaceId, cycleId);
-      setCycle(res.cycle || res);
-    } catch (e) {
-      console.error('Error activating cycle:', e);
-    }
+    await activarCycle.mutateAsync(cycleId);
   };
 
   const handleComplete = async () => {
     if (!window.confirm('¿Completar este ciclo? Las tareas no completadas quedarán en backlog.')) return;
-    try {
-      const res = await apiCycles(token).complete(workspaceId, cycleId);
-      setCycle(res.cycle || res);
-    } catch (e) {
-      console.error('Error completing cycle:', e);
-    }
+    await completarCycle.mutateAsync(cycleId);
   };
 
   const handleSaveName = async () => {
     if (!nameDraft.trim()) return;
-    try {
-      const updated = await apiCycles(token).update(workspaceId, cycleId, { nombre: nameDraft.trim() });
-      setCycle(updated);
-      setEditName(false);
-    } catch (e) {
-      console.error('Error updating cycle name:', e);
-    }
+    await actualizarCycle.mutateAsync({ cycleId, nombre: nameDraft.trim() });
+    setEditName(false);
   };
 
   const completedTasks = tasks.filter((t) => t.estado === 'completada' || t.estado === 'Completada').length;

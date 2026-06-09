@@ -1,14 +1,18 @@
 // src/components/GanttBoard.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Gantt } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { createHttpClient } from "@/lib/httpClient";
+import { Download } from "lucide-react";
+import { exportToXlsx, exportToCsv, exportToPdf } from "@/lib/exportGantt";
 
 const GanttBoard = ({ proyectoId, tareas: propsTareas, mensajes: propsMensajes, token }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef(null);
 
   useEffect(() => {
     // Modo embedido: recibe tareas directamente
@@ -77,6 +81,16 @@ const GanttBoard = ({ proyectoId, tareas: propsTareas, mensajes: propsMensajes, 
     return () => controller.abort();
   }, [proyectoId, propsTareas, propsMensajes, token]);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (exportRef.current && !exportRef.current.contains(e.target)) {
+        setExportOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   if (loading) {
     return (
       <Card className="w-full">
@@ -109,8 +123,41 @@ const GanttBoard = ({ proyectoId, tareas: propsTareas, mensajes: propsMensajes, 
 
   return (
     <Card className="w-full">
-      <CardHeader>
+      <CardHeader className="flex flex-row justify-between items-center">
         <CardTitle>Diagrama de Gantt</CardTitle>
+        {tasks.length > 0 && (
+          <div className="relative" ref={exportRef}>
+            <button
+              onClick={() => setExportOpen((o) => !o)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <Download className="h-4 w-4" />
+              Export
+            </button>
+            {exportOpen && (
+              <div className="absolute right-0 z-10 mt-1 w-40 rounded-md border border-gray-200 bg-white shadow-lg">
+                <button
+                  onClick={() => { exportToXlsx(tasks); setExportOpen(false); }}
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Excel (.xlsx)
+                </button>
+                <button
+                  onClick={() => { exportToCsv(tasks); setExportOpen(false); }}
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  CSV
+                </button>
+                <button
+                  onClick={() => { exportToPdf(tasks); setExportOpen(false); }}
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  PDF
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </CardHeader>
       <CardContent className="overflow-x-auto">
         <Gantt tasks={tasks} />

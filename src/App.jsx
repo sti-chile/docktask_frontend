@@ -42,6 +42,10 @@ import UploadPage from "./components/music/UploadPage.jsx";
 import MusicFab from "./components/music/MusicFab.jsx";
 import MiniPlayer from "./components/music/MiniPlayer.jsx";
 import { MusicProvider } from "./context/MusicContext.jsx";
+import CyclesPage from "./components/views/CyclesPage";
+import CycleDetailPage from "./components/views/CycleDetailPage";
+import ModulesPage from "./components/views/ModulesPage";
+import ModuleDetailPage from "./components/views/ModuleDetailPage";
 
 function App() {
   const navigate = useNavigate();
@@ -226,6 +230,40 @@ function App() {
                       }
                     />
                   )}
+                  {/* Ciclos */}
+                  <Route
+                    path="/workspace/:workspaceId/cycles"
+                    element={
+                      <PrivateRoute token={token}>
+                        <CyclesPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/workspace/:workspaceId/cycles/:cycleId"
+                    element={
+                      <PrivateRoute token={token}>
+                        <CycleDetailPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  {/* Módulos */}
+                  <Route
+                    path="/workspace/:workspaceId/modules"
+                    element={
+                      <PrivateRoute token={token}>
+                        <ModulesPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/workspace/:workspaceId/modules/:moduleId"
+                    element={
+                      <PrivateRoute token={token}>
+                        <ModuleDetailPage />
+                      </PrivateRoute>
+                    }
+                  />
                   {/* Música */}
                   <Route
                     path="/music"
