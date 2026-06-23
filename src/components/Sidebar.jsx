@@ -1,6 +1,9 @@
 import { useWorkspaces } from "@/hooks/useWorkspaces";
+import { useAuth } from "@/context/AuthContext";
+import { Link } from "react-router-dom";
 
 export default function Sidebar() {
+  const { isGuest } = useAuth();
   const {
     workspaces,
     activeWorkspace,
@@ -13,7 +16,7 @@ export default function Sidebar() {
   if (isError) return <div className="p-4 text-red-500">Error cargando workspaces.</div>;
 
   return (
-    <div className="w-64 bg-gray-900 text-white p-3 flex flex-col h-screen">
+    <div className="w-64 bg-gray-900 text-white p-3 flex flex-col h-screen sidebar-workspaces">
       <h2 className="text-sm font-bold mb-3">Workspaces</h2>
 
       {workspaces.map((ws) => (
@@ -37,9 +40,26 @@ export default function Sidebar() {
         </button>
       ))}
 
-      <button className="mt-auto text-sm text-gray-400 hover:text-white">
-        + Nuevo espacio
-      </button>
+      {/* CTA para guest */}
+      {isGuest && (
+        <div className="mt-4 p-3 bg-indigo-600/20 rounded-lg border border-indigo-500/30">
+          <Link
+            to="/register"
+            className="register-cta flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors w-full"
+          >
+            🚀 Crear cuenta gratis
+          </Link>
+          <p className="text-xs text-gray-400 mt-2 text-center">
+            Guarda tus tareas, crea proyectos y mucho más.
+          </p>
+        </div>
+      )}
+
+      {!isGuest && (
+        <button className="mt-auto text-sm text-gray-400 hover:text-white">
+          + Nuevo espacio
+        </button>
+      )}
     </div>
   );
 }
