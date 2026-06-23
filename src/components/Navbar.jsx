@@ -12,6 +12,7 @@ import {
 } from '@heroicons/react/24/outline/index.js';
 import { useTauri } from '../hooks/useTauri';
 import { useAuth } from '@/context/AuthContext';
+import { RocketLaunchIcon } from '@heroicons/react/24/outline';
 import InvitacionesBell from './InvitacionesBell';
 import NotificacionesBell from './NotificacionesBell';
 
@@ -39,7 +40,7 @@ const Navbar = ({ token, onLogout }) => {
   const { isMobile } = useTauri();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const links = NAV_LINKS(user);
 
   const handleLogout = () => {
@@ -83,8 +84,21 @@ const Navbar = ({ token, onLogout }) => {
                     <span className="font-semibold">{label}</span>
                   </Link>
                 ))}
-                <NotificacionesBell token={token} />
-                <InvitacionesBell token={token} />
+                {!isGuest && (
+                  <NotificacionesBell token={token} />
+                )}
+                {!isGuest && (
+                  <InvitacionesBell token={token} />
+                )}
+                {isGuest && (
+                  <a
+                    href="/register"
+                    className="register-cta inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors"
+                  >
+                    <RocketLaunchIcon className="h-4 w-4" />
+                    Crear cuenta gratis
+                  </a>
+                )}
                 <button
                   onClick={handleLogout}
                   className="flex items-center text-gray-800 hover:text-red-600 transition-colors duration-200 cerrar-sesion-btn"

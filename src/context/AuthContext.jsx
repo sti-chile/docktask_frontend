@@ -19,10 +19,22 @@ import { createContext, useContext, useState, useCallback } from "react";
  */
 
 /**
+ * @typedef {Object} GuestSession
+ * @property {string} token
+ * @property {string} role — "guest"
+ * @property {number} workspace_id
+ * @property {string} guest_id
+ * @property {number} expires_in_hours
+ */
+
+/**
  * @typedef {Object} AuthContextValue
  * @property {string|null} token
  * @property {User|null} user
+ * @property {boolean} isGuest
+ * @property {GuestSession|null} guestSession
  * @property {(token: string, user: User) => void} login
+ * @property {(session: GuestSession) => void} loginAsGuest
  * @property {() => void} logout
  * @property {() => void} handleUnauthorized
  */
@@ -32,15 +44,30 @@ const AuthContext = createContext(/** @type {AuthContextValue} */ (null));
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(/** @type {string|null} */ (null));
   const [user, setUser] = useState(/** @type {User|null} */ (null));
+  const [guestSession, setGuestSession] = useState(/** @type {GuestSession|null} */ (null));
 
   /**
-   * Establece la sesión tras un login exitoso.
-   * @param {string} newToken
-   * @param {User} newUser
+   * Establece la sesión tras un login exitoso (usuario real).
    */
   const login = useCallback((newToken, newUser) => {
     setToken(newToken);
     setUser(newUser);
+    setGuestSession(null);
+  }, []);
+
+  /**
+   * Inicia sesión como invitado (demo).
+   */
+  const loginAsGuest = useCallback((session) => {
+    setToken(session.token);
+    setUser({
+      username: "invitado",
+      rol: "guest",
+      id: session.guest_id,
+      nombre: "Invitado",
+      apellido: "",
+    });
+    setGuestSession(session);
   }, []);
 
   /**
@@ -49,20 +76,22 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
+    setGuestSession(null);
   }, []);
 
   /**
    * Callback para el ApiClient cuando recibe un 401.
-   * Limpia el estado sin redirigir — la UI reacciona automáticamente
-   * al token === null via PrivateRoute.
    */
   const handleUnauthorized = useCallback(() => {
     setToken(null);
     setUser(null);
+    setGuestSession(null);
   }, []);
 
+  const isGuest = guestSession !== null;
+
   return (
-    <AuthContext.Provider value={{ token, user, login, logout, handleUnauthorized }}>
+    <AuthContext.Provider value={{ token, user, isGuest, guestSession, login, loginAsGuest, logout, handleUnauthorized }}>
       {children}
     </AuthContext.Provider>
   );

@@ -50,7 +50,7 @@ import ModuleDetailPage from "./components/views/ModuleDetailPage";
 function App() {
   const navigate = useNavigate();
   const { isMobile } = useTauri();
-  const { token, user, login, logout } = useAuth();
+  const { token, user, isGuest, login, loginAsGuest, logout } = useAuth();
 
   // Mostrar splash solo si no hay sesión activa y no se vio en esta sesión
   const [showSplash, setShowSplash] = React.useState(
@@ -64,6 +64,21 @@ function App() {
     login(newToken, newUser);
     // Persistir token en Tauri Store para que el sync worker lo lea
     saveTauriAuthToken(newToken);
+  };
+
+  const handleGuestLogin = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.docktask.com'}/api/v1/guest/session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al crear sesión demo');
+      loginAsGuest(data);
+      navigate('/mis-tareas');
+    } catch (err) {
+      console.error('Guest login error:', err);
+    }
   };
 
   const handleLogout = () => {
@@ -113,7 +128,7 @@ function App() {
 
               <Route
                 path="/login"
-                element={<LoginForm onLogin={handleLogin} />}
+                element={<LoginForm onLogin={handleLogin} onGuestLogin={handleGuestLogin} />}
               />
               <Route path="/register" element={<RegisterForm />} />
               <Route path="/picker" element={<PickerView />} />
