@@ -1,11 +1,28 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { createHttpClient } from '../lib/httpClient';
+import { useAuth } from '../context/AuthContext';
+import { useGuestWorkspace } from './useGuestStore';
 
 export const useWorkspaceQuery = (token) => {
+  const { isGuest } = useAuth();
   const http = createHttpClient(token);
   const qc = useQueryClient();
 
+  // ── Guest mode ────────────────────────────────────────────────────────
+  const guest = useGuestWorkspace(token, isGuest);
+  if (isGuest) {
+    return {
+      workspaces: guest.workspaces,
+      isLoading: guest.isLoading,
+      error: guest.error,
+      crearWorkspace: { mutateAsync: async () => { toast.info('Crea una cuenta gratis para crear espacios.'); } },
+      actualizarWorkspace: { mutateAsync: async () => { toast.info('Los invitados no pueden editar workspaces.'); } },
+      eliminarWorkspace: { mutateAsync: async () => { toast.info('Los invitados no pueden eliminar workspaces.'); } },
+    };
+  }
+
+  // ── User mode ─────────────────────────────────────────────────────────
   const { data: workspaces = [], isLoading, error } = useQuery({
     queryKey: ['workspaces'],
     queryFn: async () => {

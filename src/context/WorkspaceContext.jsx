@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getWorkspaces } from "@/api/workspaceApi";
 import { useAuth } from "@/context/AuthContext";
-import { createHttpClient } from "@/lib/httpClient";
+import { useGuestWorkspace } from "@/hooks/useGuestStore";
 
 const WorkspaceContext = createContext();
 
@@ -11,6 +11,9 @@ export const WorkspaceProvider = ({ children }) => {
   const [activeWorkspace, setActiveWorkspace] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Guest: cargar desde useGuestWorkspace
+  const guest = useGuestWorkspace(token, isGuest);
+
   useEffect(() => {
     if (!token) return;
 
@@ -19,12 +22,9 @@ export const WorkspaceProvider = ({ children }) => {
         setLoading(true);
 
         if (isGuest) {
-          // Guest: usar endpoint demo
-          const api = createHttpClient(token);
-          const data = await api.get("/api/v1/guest/demo-data");
-          // Convertir a formato workspace esperado
-          setWorkspaces([data.workspace]);
-          setActiveWorkspace(data.workspace.id);
+          // Los datos vienen de useGuestWorkspace — se aplican cuando el query carga
+          setWorkspaces(guest.workspaces);
+          if (guest.workspaces.length > 0) setActiveWorkspace(guest.workspaces[0].id);
         } else {
           const data = await getWorkspaces(token);
           setWorkspaces(data);
@@ -38,14 +38,22 @@ export const WorkspaceProvider = ({ children }) => {
     };
 
     fetchWorkspaces();
-  }, [token, isGuest]);
+  }, [token, isGuest]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Refresco cuando datos guest llegan
+  useEffect(() => {
+    if (!isGuest || !guest.workspaces.length) return;
+    setWorkspaces(guest.workspaces);
+    setActiveWorkspace((prev) => prev || guest.workspaces[0]?.id);
+    setLoading(false);
+  }, [guest.workspaces, isGuest]);
 
   const value = {
     workspaces,
     activeWorkspace,
     setActiveWorkspace,
     refreshWorkspaces: async () => {
-      if (isGuest) return; // guests no refrescan
+      if (isGuest) return;
       const data = await getWorkspaces(token);
       setWorkspaces(data);
     },

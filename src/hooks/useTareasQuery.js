@@ -1,11 +1,32 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { createHttpClient } from '../lib/httpClient';
+import { useAuth } from '../context/AuthContext';
+import { useGuestTareas } from './useGuestStore';
 
 export const useTareasQuery = (token, proyectoId = null) => {
+  const { isGuest } = useAuth();
   const http = createHttpClient(token);
   const qc = useQueryClient();
 
+  // ── Guest mode ────────────────────────────────────────────────────────
+  const guest = useGuestTareas(token, proyectoId, isGuest);
+  if (isGuest) {
+    return {
+      tareas: guest.tareas,
+      loading: guest.isLoading,
+      isLoading: guest.isLoading,
+      error: guest.error,
+      cargarTareas: async () => {},
+      crearTarea: { mutateAsync: async () => { toast.info('Crea una cuenta gratis para agregar tareas.'); } },
+      cambiarEstado: { mutateAsync: async () => { toast.info('Crea una cuenta gratis para editar tareas.'); } },
+      eliminarTarea: { mutateAsync: async () => { toast.info('Crea una cuenta gratis para eliminar tareas.'); } },
+      duplicarTarea: { mutateAsync: async () => { toast.info('Crea una cuenta gratis para duplicar tareas.'); } },
+      actualizarFechaExpiracion: { mutateAsync: async () => { toast.info('Crea una cuenta gratis para editar fechas.'); } },
+    };
+  }
+
+  // ── User mode ─────────────────────────────────────────────────────────
   const queryParams = proyectoId ? `?proyecto_id=${proyectoId}` : '';
 
   const { data: tareas = [], isLoading, error, refetch: cargarTareas } = useQuery({

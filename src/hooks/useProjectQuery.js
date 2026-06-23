@@ -2,11 +2,28 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { createHttpClient } from '../lib/httpClient';
 import { jwtDecode } from 'jwt-decode';
+import { useAuth } from '../context/AuthContext';
+import { useGuestProyectos } from './useGuestStore';
 
 export const useProjectQuery = (token, workspaceId = null) => {
+  const { isGuest } = useAuth();
   const http = createHttpClient(token);
   const qc = useQueryClient();
 
+  // ── Guest mode ────────────────────────────────────────────────────────
+  const guest = useGuestProyectos(token, isGuest);
+  if (isGuest) {
+    return {
+      proyectos: guest.proyectos,
+      isLoading: guest.isLoading,
+      error: guest.error,
+      crearProyecto: { mutateAsync: async () => { toast.info('Los invitados no pueden crear proyectos. Crea una cuenta gratis.'); } },
+      actualizarProyecto: { mutateAsync: async () => { toast.info('Los invitados no pueden modificar proyectos.'); } },
+      eliminarProyecto: { mutateAsync: async () => { toast.info('Los invitados no pueden eliminar proyectos.'); } },
+    };
+  }
+
+  // ── User mode ─────────────────────────────────────────────────────────
   const queryParams = workspaceId ? `?workspace_id=${workspaceId}` : '';
 
   const { data: proyectos = [], isLoading, error } = useQuery({
