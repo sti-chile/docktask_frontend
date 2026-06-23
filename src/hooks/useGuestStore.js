@@ -8,7 +8,7 @@
  * como datos planos en cache local (react-query), emulando los endpoints reales.
  */
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createHttpClient } from '../lib/httpClient';
 
 /**
