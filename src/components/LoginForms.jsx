@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { UserIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { UserIcon, LockClosedIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { httpClient } from '@/lib/httpClient';
 
-const LoginForm = ({ onLogin }) => {
+const LoginForm = ({ onLogin, onGuestLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -171,6 +171,29 @@ const LoginForm = ({ onLogin }) => {
             <LockClosedIcon className="h-5 w-5" />
             {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
           </button>
+        </div>
+
+        {/* Botón de invitado */}
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={onGuestLogin}
+            disabled={isLoading}
+            className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium py-2.5 px-4 rounded-md border border-emerald-200 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            <PlayCircleIcon className="h-5 w-5" />
+            Probar DockTask como invitado
+          </button>
+          <p className="mt-2 text-xs text-gray-400 text-center">
+            Sin registro, sin compromiso. Sesión demo por 24h.
+          </p>
+        </div>
+
+        {/* Separador */}
+        <div className="mt-6 flex items-center gap-3">
+          <div className="flex-1 border-t border-gray-200" />
+          <span className="text-sm text-gray-400">o</span>
+          <div className="flex-1 border-t border-gray-200" />
         </div>
 
         {/* Texto de registro */}
