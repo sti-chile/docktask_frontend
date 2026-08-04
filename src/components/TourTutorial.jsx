@@ -4,6 +4,12 @@ import 'driver.js/dist/driver.css';
 import { QuestionMarkCircleIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/context/AuthContext';
 
+// driver.js muestra un popover huérfano centrado cuando el selector no matchea.
+// Filtramos los pasos sin target real para que el tour no muestre huecos
+// (sidebar oculta en mobile, botones que viven en otras vistas, etc).
+const withExistingTargets = (steps) =>
+  steps.filter((s) => !s.element || document.querySelector(s.element));
+
 const TourTutorial = () => {
   const [showHelp, setShowHelp] = useState(false);
   const { isGuest } = useAuth();
@@ -14,7 +20,7 @@ const TourTutorial = () => {
       allowClose: true,
       overlayColor: 'rgba(0,0,0,0.6)',
       animate: true,
-      steps: [
+      steps: withExistingTargets([
         {
           element: '.dashboard-title',
           popover: {
@@ -79,7 +85,7 @@ const TourTutorial = () => {
             doneBtnText: '¡Crear cuenta gratis!',
           },
         },
-      ],
+      ]),
     });
 
     setTimeout(() => tour.drive(), 500);
@@ -89,7 +95,7 @@ const TourTutorial = () => {
     const tour = driver({
       showProgress: true,
       allowClose: true,
-      steps: [
+      steps: withExistingTargets([
         {
           element: '.dashboard-title',
           popover: {
@@ -157,7 +163,7 @@ const TourTutorial = () => {
             position: 'top',
           },
         },
-      ],
+      ]),
     });
 
     setTimeout(() => tour.drive(), 500);

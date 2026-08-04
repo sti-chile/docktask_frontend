@@ -49,7 +49,7 @@ const WorkspaceSidebar = ({ token }) => {
 
   return (
     <aside
-      className={`flex flex-col flex-shrink-0 h-full border-r border-gray-100 bg-white transition-all duration-200 ${
+      className={`sidebar-workspaces flex flex-col flex-shrink-0 h-full border-r border-gray-100 bg-white transition-all duration-200 ${
         collapsed ? 'w-12' : 'w-56'
       }`}
     >
