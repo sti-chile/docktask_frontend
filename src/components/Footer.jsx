@@ -72,7 +72,7 @@ export default function Footer({
     return (
         <footer
             className={cn(
-                "w-full border-t border-brand-line bg-brand-surface dark:border-border dark:bg-background",
+                "w-full border-t border-brand-pearl bg-brand-surface dark:border-border dark:bg-background",
                 className
             )}
         >
@@ -101,7 +101,7 @@ export default function Footer({
                                     key={social.label}
                                     href={social.href}
                                     aria-label={social.label}
-                                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand-line bg-white text-brand-slate transition-colors hover:border-brand-blue hover:text-brand-blue dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:text-foreground"
+                                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand-pearl bg-white text-brand-slate transition-colors hover:border-brand-blue hover:text-brand-blue dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:text-foreground"
                                 >
                                     <social.Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
                                 </a>
@@ -116,7 +116,7 @@ export default function Footer({
                     </div>
                 </div>
 
-                <div className="h-px w-full bg-brand-line dark:bg-border" />
+                <div className="h-px w-full bg-brand-pearl dark:bg-border" />
 
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-[13px] text-brand-slate dark:text-muted-foreground">
@@ -130,7 +130,7 @@ export default function Footer({
                             />
                             {statusLabel}
                         </span>
-                        <span className="rounded-md border border-brand-line bg-white px-2.5 py-1 text-xs text-brand-slate dark:border-border dark:bg-card dark:text-muted-foreground">
+                        <span className="rounded-md border border-brand-pearl bg-white px-2.5 py-1 text-xs text-brand-slate dark:border-border dark:bg-card dark:text-muted-foreground">
                             {version}
                         </span>
                     </div>
