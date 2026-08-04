@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 
+const IDLE_TIME = 30 * 60 * 1000; // 30 minutos de inactividad
+
 const PrivateRoute = ({ token, children }) => {
   const idleTimeoutRef = useRef(null);
-  const idleTime = 30 * 60 * 1000; // 30 minutos de inactividad
 
   useEffect(() => {
     const resetIdleTimer = () => {
@@ -11,10 +12,12 @@ const PrivateRoute = ({ token, children }) => {
         clearTimeout(idleTimeoutRef.current);
       }
       idleTimeoutRef.current = setTimeout(() => {
-        // Redirigir al login cuando la sesión expire
+        // Redirigir al login cuando la sesión expire.
+        // ?expired=1 sobrevive la recarga completa y le dice al login que
+        // muestre el formulario directo, sin el pitch para visitantes nuevos.
         const baseUrl = window.location.origin;
-        window.location.href = `${baseUrl}/login`;
-      }, idleTime);
+        window.location.href = `${baseUrl}/login?expired=1`;
+      }, IDLE_TIME);
     };
 
     // Eventos que resetean el timer de inactividad
@@ -38,7 +41,8 @@ const PrivateRoute = ({ token, children }) => {
   }, []);
 
   if (!token) {
-    return <Navigate to="/login" replace />;
+    // from: 'private' → el login sabe que no es un visitante nuevo
+    return <Navigate to="/login" replace state={{ from: 'private' }} />;
   }
   return children;
 };
