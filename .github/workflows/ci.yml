@@ -20,10 +20,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # La version sale de .nvmrc: una sola fuente de verdad para local y CI.
+      # No fijar "20" aca: jsdom 30 declara engines
+      # ^22.22.2 || ^24.15.0 || >=26.0.0 y en Node 20 explota dentro de undici
+      # con "webidl.util.markAsUncloneable is not a function".
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version-file: ".nvmrc"
           cache: "npm"
 
       - name: Install dependencies

@@ -17,6 +17,13 @@ Tauri 2 (escritorio y Android) · Vitest + Testing Library.
 Alias `@` → `src` (declarado en `vite.config.js`; el `jsconfig.json` es sólo para
 el editor). Usá `@/...` para imports que cruzan carpetas.
 
+**Versión de Node: la que dice `.nvmrc`.** Es la única fuente de verdad y el CI la
+lee de ahí. No la fijes a mano en un workflow: `jsdom` declara
+`engines: ^22.22.2 || ^24.15.0 || >=26.0.0` y en Node 20 los tests reventaban con
+`webidl.util.markAsUncloneable is not a function` desde dentro de `undici`. `npm`
+sólo **advierte** sobre `engines`, así que la instalación pasa y el error aparece
+mucho después, lejos de su causa.
+
 ## 2. Antes de dar por terminado un cambio
 
 Los cuatro comandos tienen que pasar. No es opcional:
