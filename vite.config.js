@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -7,8 +8,17 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      '@': '/src',
+      // Ruta absoluta real, no '/src': el dev server resuelve '/src' contra la
+      // raíz del proyecto, pero Vitest lo resuelve contra la raíz del filesystem.
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
+  },
+
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.js',
+    css: false,
   },
 
   // ── Configuración requerida por Tauri v2 ──────────────────────────────
