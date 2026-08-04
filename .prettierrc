@@ -10,7 +10,7 @@
   "endOfLine": "lf",
   "overrides": [
     {
-      "files": ["*.config.js", "*.config.cjs", "*.json", "*.md", "*.yml", "*.yaml"],
+      "files": [".prettierrc", "*.config.js", "*.config.cjs", "*.json", "*.md", "*.yml", "*.yaml"],
       "options": {
         "tabWidth": 2
       }

@@ -1,0 +1,55 @@
+name: CI
+
+# Hace cumplir las reglas de AGENTS.md. Sin este check, el formato y los tests
+# dependen de que cada persona (o agente) se acuerde de correrlos.
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+  workflow_dispatch:
+
+jobs:
+  checks:
+    name: Formato, lint, tests y build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Falla si algún archivo no respeta .prettierrc. Se arregla con:
+      # npm run format
+      #
+      # AVISO: hoy este paso falla por src/components/CreateTask.jsx y
+      # src/components/views/TasksBoardView.jsx, que quedaron fuera del commit
+      # `style:` porque tenían cambios en curso. Se arregla corriendo
+      # `npm run format` sobre esos dos y commiteándolos. Es a propósito: el
+      # check está haciendo exactamente su trabajo.
+      - name: Formato (prettier)
+        run: npm run format:check
+
+      # No bloquea todavía: hay 14 errores preexistentes en archivos no
+      # relacionados (ver AGENTS.md §6). Un check que no puede pasar se ignora,
+      # así que reporta sin frenar. Cuando esa deuda se limpie, borrar
+      # `continue-on-error` para que empiece a bloquear de verdad.
+      - name: Lint
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Tests
+        run: npm test
+
+      - name: Build de producción
+        run: npm run build
