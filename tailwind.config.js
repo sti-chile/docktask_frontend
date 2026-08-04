@@ -10,15 +10,18 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       colors: {
-        /* Paleta de marca DockTI — ver Manual_de_Marca_DockTI.pdf */
+        /* Paleta oficial DockTI — Manual de Identidad Visual v1.0 (Junio 2026).
+           Los nombres siguen al manual; no inventar colores nuevos aca. */
         brand: {
-          blue: '#0D47A1',
-          lime: '#A3C614',
-          red: '#E57373',
-          slate: '#546E7A',
-          ink: '#263238',
+          blue: '#0D47A1', // Azul Cobalto Profundo — titulares, estabilidad, software
+          lime: '#A3C614', // Verde Lima / Musgo Vivo — acentos; NUNCA parrafos largos
+          red: '#E57373', // Terracota / Calafate Seco — acentos cineticos, sinapsis
+          pearl: '#CFD8DC', // Gris Perla / Piedra Tundra — lineas y fondos limpios
+          slate: '#546E7A', // Gris Pizarra — submarca STI Chile y texto secundario
+          ink: '#1A1A1A', // Tinta — cuerpo de texto y monocromatico
+          /* Derivado, NO esta en el manual: tinte claro tomado de la portada
+             para superficies amplias (fondo del footer). */
           surface: '#F5F7F1',
-          line: '#DDE4D3',
         },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
