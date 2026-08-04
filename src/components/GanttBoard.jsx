@@ -18,7 +18,14 @@ const GanttBoard = ({ proyectoId, tareas: propsTareas, mensajes: propsMensajes, 
         // Modo embedido: recibe tareas directamente
         const source = propsTareas || propsMensajes
         if (source) {
-            const tareasValidas = source
+            // Filtro defensivo por proyecto: si quien nos invoca conoce el
+            // proyecto, no confiamos en que ya haya filtrado. Sin esto, un
+            // contenedor sin contexto mezclaba tareas de varios proyectos en el
+            // mismo diagrama y no habia nada que lo delatara.
+            const delProyecto = proyectoId
+                ? source.filter((m) => String(m.proyecto_id) === String(proyectoId))
+                : source
+            const tareasValidas = delProyecto
                 .filter((m) => m.start_date && m.expiration_date)
                 .map((m) => ({
                     id: String(m.id),

@@ -9,6 +9,7 @@ import LoginForm from "./components/LoginForms.jsx"
 import PrivateRoute from "./components/PrivateRoute.jsx"
 import RegisterForm from "./components/RegisterForm.jsx"
 import TasksContainer from "./components/containers/TasksContainer"
+import ProjectLayout from "./components/layouts/ProjectLayout"
 import EditTask from "./components/EditTasks.jsx"
 import EditUsers from "./components/EditUsers.jsx"
 import Navbar from "./components/Navbar.jsx"
@@ -21,7 +22,6 @@ import ProjectsContainer from "./components/containers/ProjectsContainer"
 import CreateProject from "./components/CreateProject"
 import EditProject from "./components/EditProject"
 import "./styles/datepicker.css"
-import GanttBoard from "./components/GanttBoard"
 import WorkspacesContainer from "./components/containers/WorkspacesContainer"
 import CreateWorkspace from "./components/CreateWorkspace"
 import EditWorkspace from "./components/EditWorkspace"
@@ -159,14 +159,29 @@ function App() {
                                             </PrivateRoute>
                                         }
                                     />
+                                    {/* Layout de proyecto: el :id vive en el path,
+                                        asi que ninguna vista hija puede perderlo.
+                                        Es el equivalente en React Router a los
+                                        route groups de Next. */}
                                     <Route
-                                        path="/mis-proyectos/:id/tareas"
+                                        path="/mis-proyectos/:id"
                                         element={
                                             <PrivateRoute token={token}>
-                                                <ProyectoTareasWrapper />
+                                                <ProjectLayout token={token} />
                                             </PrivateRoute>
                                         }
-                                    />
+                                    >
+                                        <Route index element={<Navigate to="tareas" replace />} />
+                                        <Route
+                                            path="tareas"
+                                            element={<TasksContainer token={token} />}
+                                        />
+                                        {/* El Gantt no es una ruta aparte: es una
+                                            vista del contenedor de tareas, que ya
+                                            filtra por proyecto. Una sola
+                                            implementacion, imposible de mezclar. */}
+                                        <Route path="gantt" element={<GanttViewRedirect />} />
+                                    </Route>
                                     <Route
                                         path="/create"
                                         element={
@@ -228,14 +243,6 @@ function App() {
                                         element={
                                             <PrivateRoute token={token}>
                                                 <EditWorkspace token={token} />
-                                            </PrivateRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/mis-proyectos/:id/gantt"
-                                        element={
-                                            <PrivateRoute token={token}>
-                                                <GanttWrapper />
                                             </PrivateRoute>
                                         }
                                     />
@@ -348,29 +355,12 @@ function App() {
     )
 }
 
-// Wrapper para extraer :id de la URL y pasarlo como prop a GanttBoard
-function GanttWrapper() {
+// El Gantt dejo de ser una ruta propia: es una vista del contenedor de tareas,
+// que ya filtra por proyecto. Los enlaces viejos a /mis-proyectos/:id/gantt siguen
+// funcionando redirigiendo a la vista, para no romper links compartidos.
+function GanttViewRedirect() {
     const { id } = useParams()
-    const { token } = useAuth()
-    return <GanttBoard proyectoId={id} token={token} />
-}
-
-// Wrapper para tareas filtradas por proyecto
-function ProyectoTareasWrapper() {
-    const { id } = useParams()
-    const { token } = useAuth()
-    const navigate = useNavigate()
-    return (
-        <div>
-            <button
-                onClick={() => navigate("/mis-proyectos")}
-                className="ml-6 mt-4 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
-            >
-                ← Volver a proyectos
-            </button>
-            <TasksContainer token={token} proyectoId={parseInt(id)} />
-        </div>
-    )
+    return <Navigate to={`/mis-proyectos/${id}/tareas?view=gantt`} replace />
 }
 
 export default App

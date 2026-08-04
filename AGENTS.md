@@ -134,6 +134,20 @@ Archivos en `src/assets/`: `DockTI_Logo_Principal.svg`, `DockTI_Logo_Blanco.svg`
   con lógica: destruye la legibilidad del diff y arruina `git blame`.
 - **Rutas internas:** `<Link to="...">` de react-router, y verificá que la ruta
   exista en `App.jsx` antes de linkearla.
+- **El contexto va en la URL, nunca sólo en props ni en `useState`:**
+  - El proyecto vive en el **path**: `/mis-proyectos/:id/tareas`. Las vistas
+    hijas lo leen con `useParams()` bajo el layout `ProjectLayout`. No inventes
+    wrappers que lo pasen por prop — así se perdía antes y el Gantt terminaba
+    mezclando tareas de varios proyectos.
+  - La vista activa va en el **query**: `?view=board|tasks|calendar|gantt`. Si
+    la guardás en `useState`, se resetea al navegar y "volver atrás" no
+    devuelve al usuario donde estaba.
+  - Al abrir un formulario de edición, pasale
+    `state={{ from: pathname + search }}` para que al guardar o cancelar vuelva
+    al lugar exacto, con proyecto y vista.
+  - El nombre del parámetro es **`proyecto_id`**, igual que en la API. Dentro
+    del formulario de creación existe `project_id`, que `useTareasQuery` traduce
+    antes del POST: no propagues ese nombre a las URLs.
 - **Tauri:** usá `useTauri()` para ocultar UI de marketing o pitch. El mismo
   `/login` corre dentro de la app instalada, donde explicar el producto es ruido.
 - **Hooks:** nunca condicionales ni después de un early return.
