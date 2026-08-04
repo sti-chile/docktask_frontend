@@ -92,8 +92,8 @@ export default function Footer({
                             />
                         </Link>
                         <p className="text-[15px] leading-relaxed text-brand-slate dark:text-muted-foreground">
-                            Organizá workspaces, proyectos, ciclos y tareas en un solo lugar. Simple,
-                            rápido y sin fricción.
+                            Organizá workspaces, proyectos, ciclos y tareas en un solo lugar.
+                            Simple, rápido y sin fricción.
                         </p>
                         <div className="flex gap-3">
                             {SOCIAL_LINKS.map((social) => (

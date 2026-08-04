@@ -6,20 +6,20 @@
  */
 
 // Detectar si estamos dentro de Tauri
-export const IS_TAURI = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+export const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window
 
 // Lazy import para no romper en el browser
 const getInvoke = async () => {
-  if (!IS_TAURI) return null;
-  const { invoke } = await import('@tauri-apps/api/core');
-  return invoke;
-};
+    if (!IS_TAURI) return null
+    const { invoke } = await import("@tauri-apps/api/core")
+    return invoke
+}
 
 const getEmitter = async () => {
-  if (!IS_TAURI) return null;
-  const { listen } = await import('@tauri-apps/api/event');
-  return listen;
-};
+    if (!IS_TAURI) return null
+    const { listen } = await import("@tauri-apps/api/event")
+    return listen
+}
 
 // ─────────────────────────────────────────────
 //  OFFLINE / BASE DE DATOS LOCAL
@@ -30,9 +30,9 @@ const getEmitter = async () => {
  * @param {Object} task - Objeto tarea con todos sus campos
  */
 export async function saveTaskOffline(task) {
-  const invoke = await getInvoke();
-  if (!invoke) return; // En browser no hace nada
-  return invoke('save_task_offline', { task });
+    const invoke = await getInvoke()
+    if (!invoke) return // En browser no hace nada
+    return invoke("save_task_offline", { task })
 }
 
 /**
@@ -40,9 +40,9 @@ export async function saveTaskOffline(task) {
  * @param {Object} project
  */
 export async function saveProjectOffline(project) {
-  const invoke = await getInvoke();
-  if (!invoke) return;
-  return invoke('save_project_offline', { project });
+    const invoke = await getInvoke()
+    if (!invoke) return
+    return invoke("save_project_offline", { project })
 }
 
 /**
@@ -50,9 +50,9 @@ export async function saveProjectOffline(project) {
  * @returns {Promise<string[]>}
  */
 export async function getPendingSync() {
-  const invoke = await getInvoke();
-  if (!invoke) return [];
-  return invoke('get_pending_sync');
+    const invoke = await getInvoke()
+    if (!invoke) return []
+    return invoke("get_pending_sync")
 }
 
 // ─────────────────────────────────────────────
@@ -75,12 +75,12 @@ export async function getPendingSync() {
  * });
  */
 export async function scheduleTaskReminder(reminder) {
-  const invoke = await getInvoke();
-  if (!invoke) {
-    console.warn('[Tauri] scheduleTaskReminder: no disponible en browser');
-    return null;
-  }
-  return invoke('schedule_task_reminder', { reminder });
+    const invoke = await getInvoke()
+    if (!invoke) {
+        console.warn("[Tauri] scheduleTaskReminder: no disponible en browser")
+        return null
+    }
+    return invoke("schedule_task_reminder", { reminder })
 }
 
 /**
@@ -88,9 +88,9 @@ export async function scheduleTaskReminder(reminder) {
  * @param {string} reminderId
  */
 export async function cancelReminder(reminderId) {
-  const invoke = await getInvoke();
-  if (!invoke) return;
-  return invoke('cancel_reminder', { reminder_id: reminderId });
+    const invoke = await getInvoke()
+    if (!invoke) return
+    return invoke("cancel_reminder", { reminder_id: reminderId })
 }
 
 /**
@@ -98,9 +98,9 @@ export async function cancelReminder(reminderId) {
  * @returns {Promise<Array>}
  */
 export async function getPendingNotifications() {
-  const invoke = await getInvoke();
-  if (!invoke) return [];
-  return invoke('get_pending_notifications');
+    const invoke = await getInvoke()
+    if (!invoke) return []
+    return invoke("get_pending_notifications")
 }
 
 // ─────────────────────────────────────────────
@@ -113,9 +113,9 @@ export async function getPendingNotifications() {
  * @returns {Promise<string>} Contenido ICS (para fallback de descarga)
  */
 export async function addToOsCalendar(event) {
-  const invoke = await getInvoke();
-  if (!invoke) return null;
-  return invoke('add_to_os_calendar', { event });
+    const invoke = await getInvoke()
+    if (!invoke) return null
+    return invoke("add_to_os_calendar", { event })
 }
 
 /**
@@ -123,9 +123,9 @@ export async function addToOsCalendar(event) {
  * @param {string} eventId
  */
 export async function removeFromOsCalendar(eventId) {
-  const invoke = await getInvoke();
-  if (!invoke) return;
-  return invoke('remove_from_os_calendar', { event_id: eventId });
+    const invoke = await getInvoke()
+    if (!invoke) return
+    return invoke("remove_from_os_calendar", { event_id: eventId })
 }
 
 // ─────────────────────────────────────────────
@@ -137,9 +137,9 @@ export async function removeFromOsCalendar(eventId) {
  * @returns {Promise<boolean>}
  */
 export async function getNetworkStatus() {
-  const invoke = await getInvoke();
-  if (!invoke) return navigator.onLine;
-  return invoke('get_network_status');
+    const invoke = await getInvoke()
+    if (!invoke) return navigator.onLine
+    return invoke("get_network_status")
 }
 
 // ─────────────────────────────────────────────
@@ -161,7 +161,7 @@ export async function getNetworkStatus() {
  * return () => unlisten();
  */
 export async function onSyncCompleted(callback) {
-  const listen = await getEmitter();
-  if (!listen) return () => {};
-  return listen('sync:completed', (event) => callback(event.payload));
+    const listen = await getEmitter()
+    if (!listen) return () => {}
+    return listen("sync:completed", (event) => callback(event.payload))
 }

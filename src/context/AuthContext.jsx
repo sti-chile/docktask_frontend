@@ -7,7 +7,7 @@
  * - Si el usuario recarga la página, deberá volver a iniciar sesión.
  *   (Comportamiento correcto para evitar XSS token theft.)
  */
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback } from "react"
 
 /**
  * @typedef {Object} User
@@ -39,67 +39,78 @@ import { createContext, useContext, useState, useCallback } from "react";
  * @property {() => void} handleUnauthorized
  */
 
-const AuthContext = createContext(/** @type {AuthContextValue} */ (null));
+const AuthContext = createContext(/** @type {AuthContextValue} */ (null))
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(/** @type {string|null} */ (null));
-  const [user, setUser] = useState(/** @type {User|null} */ (null));
-  const [guestSession, setGuestSession] = useState(/** @type {GuestSession|null} */ (null));
+    const [token, setToken] = useState(/** @type {string|null} */ (null))
+    const [user, setUser] = useState(/** @type {User|null} */ (null))
+    const [guestSession, setGuestSession] = useState(/** @type {GuestSession|null} */ (null))
 
-  /**
-   * Establece la sesión tras un login exitoso (usuario real).
-   */
-  const login = useCallback((newToken, newUser) => {
-    setToken(newToken);
-    setUser(newUser);
-    setGuestSession(null);
-  }, []);
+    /**
+     * Establece la sesión tras un login exitoso (usuario real).
+     */
+    const login = useCallback((newToken, newUser) => {
+        setToken(newToken)
+        setUser(newUser)
+        setGuestSession(null)
+    }, [])
 
-  /**
-   * Inicia sesión como invitado (demo).
-   */
-  const loginAsGuest = useCallback((session) => {
-    setToken(session.token);
-    setUser({
-      username: "invitado",
-      rol: "guest",
-      id: session.guest_id,
-      nombre: "Invitado",
-      apellido: "",
-    });
-    setGuestSession(session);
-  }, []);
+    /**
+     * Inicia sesión como invitado (demo).
+     */
+    const loginAsGuest = useCallback((session) => {
+        setToken(session.token)
+        setUser({
+            username: "invitado",
+            rol: "guest",
+            id: session.guest_id,
+            nombre: "Invitado",
+            apellido: "",
+        })
+        setGuestSession(session)
+    }, [])
 
-  /**
-   * Limpia la sesión (logout manual).
-   */
-  const logout = useCallback(() => {
-    setToken(null);
-    setUser(null);
-    setGuestSession(null);
-  }, []);
+    /**
+     * Limpia la sesión (logout manual).
+     */
+    const logout = useCallback(() => {
+        setToken(null)
+        setUser(null)
+        setGuestSession(null)
+    }, [])
 
-  /**
-   * Callback para el ApiClient cuando recibe un 401.
-   */
-  const handleUnauthorized = useCallback(() => {
-    setToken(null);
-    setUser(null);
-    setGuestSession(null);
-  }, []);
+    /**
+     * Callback para el ApiClient cuando recibe un 401.
+     */
+    const handleUnauthorized = useCallback(() => {
+        setToken(null)
+        setUser(null)
+        setGuestSession(null)
+    }, [])
 
-  const isGuest = guestSession !== null;
+    const isGuest = guestSession !== null
 
-  return (
-    <AuthContext.Provider value={{ token, user, isGuest, guestSession, login, loginAsGuest, logout, handleUnauthorized }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+    return (
+        <AuthContext.Provider
+            value={{
+                token,
+                user,
+                isGuest,
+                guestSession,
+                login,
+                loginAsGuest,
+                logout,
+                handleUnauthorized,
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
+    )
+}
 
 /** @returns {AuthContextValue} */
 export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth debe usarse dentro de <AuthProvider>");
-  return ctx;
-};
+    const ctx = useContext(AuthContext)
+    if (!ctx) throw new Error("useAuth debe usarse dentro de <AuthProvider>")
+    return ctx
+}
