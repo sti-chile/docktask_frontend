@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTareasQuery } from "../hooks/useTareasQuery"
 import {
@@ -22,8 +22,15 @@ import TourTutorial from "@/components/TourTutorial"
 const Dashboard = ({ token }) => {
     const navigate = useNavigate()
     const { tareas, loading } = useTareasQuery(token)
+    // TODOS los hooks van antes del early return de `loading`. Este useState vivia
+    // despues, asi que en el primer render (loading true) no se ejecutaba y en el
+    // segundo si: React asocia el estado por POSICION de llamada, el conteo
+    // cambiaba entre renders y abortaba con "Rendered more hooks than during the
+    // previous render". El Dashboard se rompia en cada carga fria.
+    const [estadoFiltrado, setEstadoFiltrado] = useState(null)
 
     const onVerTodasLasTareas = () => navigate("/mis-tareas")
+    const handleFiltrarPorEstado = (estado) => setEstadoFiltrado(estado)
 
     if (loading) {
         return (
@@ -53,13 +60,6 @@ const Dashboard = ({ token }) => {
 
     // Calcular estadísticas
     const totalTareas = tareas.length
-    const tareasPorVencer = tareas.filter((tarea) => {
-        if (!tarea.expiration_date) return false
-        const fechaExpiracion = new Date(tarea.expiration_date)
-        const ahora = new Date()
-        const diasRestantes = (fechaExpiracion - ahora) / (1000 * 60 * 60 * 24)
-        return diasRestantes > 0 && diasRestantes <= 7
-    }).length
 
     const tareasPorEstado = {
         pendiente: tareas.filter((t) => t.estado === "pendiente").length,
@@ -119,10 +119,6 @@ const Dashboard = ({ token }) => {
     ]
 
     const ultimasTareas = tareas.slice(0, 5)
-    const [estadoFiltrado, setEstadoFiltrado] = React.useState(null)
-    const handleFiltrarPorEstado = (estado) => {
-        setEstadoFiltrado(estado)
-    }
 
     return (
         <div className="container mx-auto px-4 py-8">

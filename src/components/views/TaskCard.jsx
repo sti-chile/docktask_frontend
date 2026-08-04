@@ -1,5 +1,4 @@
 import React, { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import {
     PencilSquareIcon,
     TrashIcon,
@@ -128,10 +127,13 @@ const TaskCard = ({
     onDelete,
     onDuplicar,
     onFechaExpiracionChange,
+    // El contenedor ya venia pasando `onEdit`, pero este componente no lo
+    // declaraba y navegaba solo a /edit/:id, perdiendo el contexto del proyecto y
+    // la vista. Delegamos en el contenedor, que sabe de donde venimos.
+    onEdit,
     isDragging = false,
     currentDroppableId = null,
 }) => {
-    const navigate = useNavigate()
     const [localEstado, setLocalEstado] = useState(tarea.estado)
     const { token } = useAuth()
 
@@ -219,7 +221,7 @@ const TaskCard = ({
                                             size="icon"
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                navigate(`/edit/${tarea.id}`)
+                                                onEdit?.()
                                             }}
                                             className="h-9 w-9 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 border-yellow-200"
                                         >
@@ -342,7 +344,7 @@ const TaskCard = ({
                             size="icon"
                             onClick={(e) => {
                                 e.stopPropagation()
-                                navigate(`/edit/${tarea.id}`)
+                                onEdit?.()
                             }}
                             className="h-9 w-9 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 border-yellow-200"
                         >

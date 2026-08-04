@@ -116,7 +116,9 @@ const ProjectCard = ({ proyecto, onDelete, onEdit }) => {
                         className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
                         onClick={(e) => {
                             e.stopPropagation()
-                            navigate(`/mis-proyectos/${proyecto.id}/gantt`)
+                            // URL canonica directa: el Gantt es una vista del
+                            // contenedor de tareas, ya filtrado por proyecto.
+                            navigate(`/mis-proyectos/${proyecto.id}/tareas?view=gantt`)
                         }}
                     >
                         <ChartBarIcon className="h-4 w-4" />

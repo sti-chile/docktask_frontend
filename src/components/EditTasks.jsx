@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { toast } from "react-toastify"
 import { createHttpClient, httpClient } from "@/lib/httpClient"
 import LinkPreview from "./LinkPreview"
@@ -12,6 +12,11 @@ const toInputValue = (iso) => (iso ? iso.slice(0, 16) : "")
 function EditTask({ token }) {
     const { id } = useParams()
     const navigate = useNavigate()
+    const location = useLocation()
+    // Quien nos abrio nos dice a donde volver (con su proyecto y su vista). Sin
+    // esto, guardar o cancelar te tiraba siempre a /mis-tareas y perdias el
+    // contexto del proyecto en el que estabas trabajando.
+    const volverA = location.state?.from || "/mis-tareas"
     const [descripcion, setDescripcion] = useState("")
     const [nombre, setNombre] = useState("")
     const [startDate, setStartDate] = useState("")
@@ -61,7 +66,7 @@ function EditTask({ token }) {
 
         const api = token ? createHttpClient(token) : httpClient
         api.put(`/api/v1/tareas/${id}`, payload)
-            .then(() => navigate("/mis-tareas"))
+            .then(() => navigate(volverA))
             .catch((error) => {
                 // Antes fallaba en silencio. Ahora que se pueden mandar fechas, un
                 // 400 por formato tiene que ser visible o parece que no guardo nada.
@@ -146,7 +151,7 @@ function EditTask({ token }) {
                     </button>
                     <button
                         type="button"
-                        onClick={() => navigate("/mis-tareas")}
+                        onClick={() => navigate(volverA)}
                         className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200"
                     >
                         Cancelar
