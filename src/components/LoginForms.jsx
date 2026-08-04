@@ -179,121 +179,121 @@ const LoginForm = ({ onLogin, onGuestLogin }) => {
                 {/* Formulario de login: oculto tras un clic para visitantes nuevos.
                     Aparece en este mismo lugar, no como modal, para conservar el split. */}
                 <div className="mx-auto w-full max-w-md lg:mx-0 lg:justify-self-end">
-                {!showLogin ? (
-                    <div className="flex flex-col gap-3 rounded-lg bg-white/80 p-6 text-center shadow-md backdrop-blur-[2px]">
-                        <p className="font-semibold text-brand-ink">¿Ya tenés cuenta?</p>
-                        <button
-                            type="button"
-                            onClick={() => setShowLogin(true)}
-                            className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2.5 font-medium text-brand-ink transition-colors hover:border-brand-blue hover:text-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2"
-                        >
-                            <LockClosedIcon className="h-5 w-5" aria-hidden="true" />
-                            Iniciar sesión
-                        </button>
-                        <p className="text-sm text-brand-slate">
-                            ¿Aún no tienes cuenta?{" "}
-                            <Link
-                                to="/register"
-                                className="font-medium text-brand-blue underline-offset-2 hover:underline"
+                    {!showLogin ? (
+                        <div className="flex flex-col gap-3 rounded-lg bg-white/80 p-6 text-center shadow-md backdrop-blur-[2px]">
+                            <p className="font-semibold text-brand-ink">¿Ya tenés cuenta?</p>
+                            <button
+                                type="button"
+                                onClick={() => setShowLogin(true)}
+                                className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2.5 font-medium text-brand-ink transition-colors hover:border-brand-blue hover:text-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2"
                             >
-                                Crear Cuenta
-                            </Link>
-                        </p>
-                    </div>
-                ) : (
-                <form onSubmit={handleLogin} className="bg-white rounded-lg shadow-md p-6">
-                    {!isTauri && !cameFromApp && (
-                        <button
-                            type="button"
-                            onClick={() => setShowLogin(false)}
-                            className="mb-4 flex items-center gap-1 text-sm text-brand-slate transition-colors hover:text-brand-blue"
-                        >
-                            <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
-                            Volver
-                        </button>
+                                <LockClosedIcon className="h-5 w-5" aria-hidden="true" />
+                                Iniciar sesión
+                            </button>
+                            <p className="text-sm text-brand-slate">
+                                ¿Aún no tienes cuenta?{" "}
+                                <Link
+                                    to="/register"
+                                    className="font-medium text-brand-blue underline-offset-2 hover:underline"
+                                >
+                                    Crear Cuenta
+                                </Link>
+                            </p>
+                        </div>
+                    ) : (
+                        <form onSubmit={handleLogin} className="bg-white rounded-lg shadow-md p-6">
+                            {!isTauri && !cameFromApp && (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowLogin(false)}
+                                    className="mb-4 flex items-center gap-1 text-sm text-brand-slate transition-colors hover:text-brand-blue"
+                                >
+                                    <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
+                                    Volver
+                                </button>
+                            )}
+                            <div className="space-y-4">
+                                {/* Input de usuario */}
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <UserIcon className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        ref={usernameRef}
+                                        type="text"
+                                        value={username}
+                                        placeholder="Usuario"
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        required
+                                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        autoComplete="username"
+                                    />
+                                </div>
+
+                                {/* Input de contraseña */}
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        placeholder="Contraseña"
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        autoComplete="current-password"
+                                    />
+                                </div>
+
+                                {/* Botón de login */}
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <LockClosedIcon className="h-5 w-5" />
+                                    {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
+                                </button>
+                            </div>
+
+                            {/* Botón de invitado */}
+                            <div className="mt-6">
+                                <button
+                                    type="button"
+                                    onClick={onGuestLogin}
+                                    disabled={isLoading}
+                                    className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium py-2.5 px-4 rounded-md border border-emerald-200 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+                                >
+                                    <PlayCircleIcon className="h-5 w-5" />
+                                    Probar DockTask como invitado
+                                </button>
+                                <p className="mt-2 text-xs text-gray-400 text-center">
+                                    Sin registro, sin compromiso. Sesión demo por 24h.
+                                </p>
+                            </div>
+
+                            {/* Separador */}
+                            <div className="mt-6 flex items-center gap-3">
+                                <div className="flex-1 border-t border-gray-200" />
+                                <span className="text-sm text-gray-400">o</span>
+                                <div className="flex-1 border-t border-gray-200" />
+                            </div>
+
+                            {/* Texto de registro */}
+                            <div className="mt-4 text-center">
+                                <p className="text-gray-600">
+                                    ¿Aún no tienes cuenta?{" "}
+                                    <Link
+                                        to="/register"
+                                        className="text-blue-500 hover:text-blue-600 font-medium transition-colors duration-200"
+                                    >
+                                        Crear Cuenta
+                                    </Link>
+                                </p>
+                            </div>
+                        </form>
                     )}
-                    <div className="space-y-4">
-                        {/* Input de usuario */}
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <UserIcon className="h-5 w-5 text-gray-400" />
-                            </div>
-                            <input
-                                ref={usernameRef}
-                                type="text"
-                                value={username}
-                                placeholder="Usuario"
-                                onChange={(e) => setUsername(e.target.value)}
-                                required
-                                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                autoComplete="username"
-                            />
-                        </div>
-
-                        {/* Input de contraseña */}
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <LockClosedIcon className="h-5 w-5 text-gray-400" />
-                            </div>
-                            <input
-                                type="password"
-                                value={password}
-                                placeholder="Contraseña"
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                autoComplete="current-password"
-                            />
-                        </div>
-
-                        {/* Botón de login */}
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <LockClosedIcon className="h-5 w-5" />
-                            {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
-                        </button>
-                    </div>
-
-                    {/* Botón de invitado */}
-                    <div className="mt-6">
-                        <button
-                            type="button"
-                            onClick={onGuestLogin}
-                            disabled={isLoading}
-                            className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium py-2.5 px-4 rounded-md border border-emerald-200 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
-                        >
-                            <PlayCircleIcon className="h-5 w-5" />
-                            Probar DockTask como invitado
-                        </button>
-                        <p className="mt-2 text-xs text-gray-400 text-center">
-                            Sin registro, sin compromiso. Sesión demo por 24h.
-                        </p>
-                    </div>
-
-                    {/* Separador */}
-                    <div className="mt-6 flex items-center gap-3">
-                        <div className="flex-1 border-t border-gray-200" />
-                        <span className="text-sm text-gray-400">o</span>
-                        <div className="flex-1 border-t border-gray-200" />
-                    </div>
-
-                    {/* Texto de registro */}
-                    <div className="mt-4 text-center">
-                        <p className="text-gray-600">
-                            ¿Aún no tienes cuenta?{" "}
-                            <Link
-                                to="/register"
-                                className="text-blue-500 hover:text-blue-600 font-medium transition-colors duration-200"
-                            >
-                                Crear Cuenta
-                            </Link>
-                        </p>
-                    </div>
-                </form>
-                )}
                 </div>
             </div>
             {/* Fin del wrapper */}

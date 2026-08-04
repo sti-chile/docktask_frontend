@@ -1,60 +1,60 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useWorkspaceQuery } from '../../hooks/useWorkspaceQuery';
-import { toast } from 'react-toastify';
-import WorkspacesView from '../views/WorkspacesView';
-import { jwtDecode } from 'jwt-decode';
+import React, { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { useWorkspaceQuery } from "../../hooks/useWorkspaceQuery"
+import { toast } from "react-toastify"
+import WorkspacesView from "../views/WorkspacesView"
+import { jwtDecode } from "jwt-decode"
 
 const WorkspacesContainer = ({ token }) => {
-  const navigate = useNavigate();
-  const { workspaces, isLoading, error, eliminarWorkspace } = useWorkspaceQuery(token);
+    const navigate = useNavigate()
+    const { workspaces, isLoading, error, eliminarWorkspace } = useWorkspaceQuery(token)
 
-  const currentUserId = (() => {
-    try {
-      return jwtDecode(token)?.sub;
-    } catch {
-      return null;
+    const currentUserId = (() => {
+        try {
+            return jwtDecode(token)?.sub
+        } catch {
+            return null
+        }
+    })()
+
+    useEffect(() => {
+        if (error) {
+            toast.error("Error al cargar los workspaces")
+        }
+    }, [error])
+
+    const handleDelete = async (id) => {
+        try {
+            await eliminarWorkspace.mutateAsync(id)
+        } catch (error) {
+            console.error("Error al eliminar el workspace:", error)
+        }
     }
-  })();
 
-  useEffect(() => {
-    if (error) {
-      toast.error('Error al cargar los workspaces');
+    const handleEdit = (workspace) => {
+        navigate(`/editar-workspace/${workspace.id}`)
     }
-  }, [error]);
 
-  const handleDelete = async (id) => {
-    try {
-      await eliminarWorkspace.mutateAsync(id);
-    } catch (error) {
-      console.error('Error al eliminar el workspace:', error);
+    const handleCreateClick = () => {
+        navigate("/crear-workspace")
     }
-  };
 
-  const handleEdit = (workspace) => {
-    navigate(`/editar-workspace/${workspace.id}`);
-  };
+    const handleRetry = () => {
+        window.location.reload()
+    }
 
-  const handleCreateClick = () => {
-    navigate('/crear-workspace');
-  };
+    return (
+        <WorkspacesView
+            workspaces={workspaces}
+            isLoading={isLoading}
+            error={error}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+            onCreateClick={handleCreateClick}
+            onRetry={handleRetry}
+            currentUserId={currentUserId}
+        />
+    )
+}
 
-  const handleRetry = () => {
-    window.location.reload();
-  };
-
-  return (
-    <WorkspacesView
-      workspaces={workspaces}
-      isLoading={isLoading}
-      error={error}
-      onDelete={handleDelete}
-      onEdit={handleEdit}
-      onCreateClick={handleCreateClick}
-      onRetry={handleRetry}
-      currentUserId={currentUserId}
-    />
-  );
-};
-
-export default WorkspacesContainer;
+export default WorkspacesContainer
