@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useParams, useNavigate } from "react-router-do
 import { saveTauriAuthToken, clearTauriAuthToken, useDeepLink, useTauri } from "./hooks/useTauri"
 import { useAuth } from "@/context/AuthContext"
 import PickerView from "./components/views/PickerView"
-import SplashScreen from "./components/SplashScreen.jsx"
 import UpdateChecker from "./components/UpdateChecker.jsx"
 import LoginForm from "./components/LoginForms.jsx"
 import PrivateRoute from "./components/PrivateRoute.jsx"
@@ -41,11 +40,6 @@ function App() {
     const navigate = useNavigate()
     const { isMobile } = useTauri()
     const { token, user, login, loginAsGuest, logout } = useAuth()
-
-    // Mostrar splash solo si no hay sesión activa y no se vio en esta sesión
-    const [showSplash, setShowSplash] = React.useState(
-        () => !token && !sessionStorage.getItem("splashSeen")
-    )
 
     // Deep links — notificación → navega a la ruta correcta
     useDeepLink(navigate)
@@ -85,16 +79,6 @@ function App() {
     return (
         <MusicProvider>
             <div className="min-h-screen bg-gray-50 flex flex-col">
-                {/* Splash screen — se muestra antes del login, una vez por sesión */}
-                {showSplash && (
-                    <SplashScreen
-                        onFinish={() => {
-                            sessionStorage.setItem("splashSeen", "1")
-                            setShowSplash(false)
-                        }}
-                    />
-                )}
-
                 <Navbar token={token} onLogout={handleLogout} />
 
                 <div className="flex flex-1 overflow-hidden">
