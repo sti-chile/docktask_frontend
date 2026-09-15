@@ -35,7 +35,13 @@ jobs:
 
       # ── Android SDK + NDK ─────────────────────────────────────────
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          # v4 trae el mismo default que v3 (`tools platform-tools`) y el paquete
+          # `tools` ya no existe en el repositorio del SDK: `sdkmanager tools`
+          # falla con "Failed to find package 'tools'" y el job muere antes de
+          # compilar. Solo se pide lo que el runner realmente necesita acá.
+          packages: 'platform-tools'
 
       - name: Install Android NDK & Build Tools
         run: |
@@ -67,7 +73,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Fuente única de verdad (AGENTS.md §1): nunca fijar la versión a mano.
+          node-version-file: '.nvmrc'
           cache: 'npm'
 
       - name: Install dependencies
